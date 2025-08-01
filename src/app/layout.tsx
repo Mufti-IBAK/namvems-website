@@ -5,7 +5,7 @@ import LayoutClient from "../components/LayoutClient";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const meta Metadata = {
+export const metadata: Metadata = {
   title: "NAMVEMS - Nigerian Association of Muslim Veterinary Medical Students",
   description: "Official website for NAMVEMS",
 };
