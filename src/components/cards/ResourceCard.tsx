@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaDownload, FaFilePdf, FaBook, FaVideo, FaImage, FaFileAlt, FaSearch } from 'react-icons/fa';
 import Link from 'next/link';
+import { getResourceImageByType } from '@/lib/constants/images';
 
 interface ResourceCardProps {
   title: string;
@@ -10,7 +11,7 @@ interface ResourceCardProps {
   downloadUrl: string;
   onDownload?: () => void;
   thumbnailUrl?: string;
-  resourceId?: string; // Add resource ID for navigation
+  resourceId?: string;
 }
 
 const ResourceCard: React.FC<ResourceCardProps> = ({
@@ -23,6 +24,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
   thumbnailUrl,
   resourceId
 }) => {
+  // Use provided thumbnail or get default based on type
+  const displayThumbnailUrl = thumbnailUrl || getResourceImageByType(type);
+
   const getTypeIcon = () => {
     switch (type) {
       case 'handbook': return <FaBook className="text-2xl" />;
@@ -53,25 +57,23 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 stagger-item">
-      {thumbnailUrl && (
-        <div className="relative h-40 rounded-lg overflow-hidden mb-4">
-          {resourceId ? (
-            <Link href={`/resources/${resourceId}`}>
-              <img 
-                src={thumbnailUrl} 
-                alt={title}
-                className="w-full h-full object-cover cursor-pointer"
-              />
-            </Link>
-          ) : (
+      <div className="relative h-40 rounded-lg overflow-hidden mb-4">
+        {resourceId ? (
+          <Link href={`/resources/${resourceId}`}>
             <img 
-              src={thumbnailUrl} 
+              src={displayThumbnailUrl} 
               alt={title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
             />
-          )}
-        </div>
-      )}
+          </Link>
+        ) : (
+          <img 
+            src={displayThumbnailUrl} 
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
       
       <div className="flex justify-between items-start mb-4">
         <div className={`p-3 rounded-lg ${getTypeColor()}`}>

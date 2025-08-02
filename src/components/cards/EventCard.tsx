@@ -2,6 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
+import { getEventImageByCategory } from '@/lib/constants/images';
 
 interface EventCardProps {
   title: string;
@@ -13,7 +14,7 @@ interface EventCardProps {
   registeredCount?: number;
   onRegister?: () => void;
   imageUrl?: string;
-  eventId?: string; // Add event ID for navigation
+  eventId?: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -28,39 +29,33 @@ const EventCard: React.FC<EventCardProps> = ({
   imageUrl,
   eventId
 }) => {
+  // Use provided image or get default based on category
+  const displayImageUrl = imageUrl || getEventImageByCategory(category);
+
   const formattedDate = format(date, 'EEEE, MMMM d, yyyy h:mm a');
   const spotsLeft = maxAttendees > 0 ? maxAttendees - registeredCount : null;
   const isFull = spotsLeft !== null && spotsLeft <= 0;
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 stagger-item">
-      {imageUrl ? (
-        <div className="h-48 relative overflow-hidden">
-          {eventId ? (
-            <Link href={`/events/${eventId}`}>
-              <img 
-                src={imageUrl} 
-                alt={`Event: ${title}`}
-                className="w-full h-full object-cover cursor-pointer"
-              />
-            </Link>
-          ) : (
+      <div className="h-48 relative overflow-hidden">
+        {eventId ? (
+          <Link href={`/events/${eventId}`}>
             <img 
-              src={imageUrl} 
+              src={displayImageUrl} 
               alt={`Event: ${title}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
             />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-        </div>
-      ) : (
-        <div className="h-48 bg-gradient-to-r from-primary to-accent flex items-center justify-center" aria-label={`Event: ${title}`}>
-          <div className="text-white text-center p-4">
-            <FaCalendarAlt className="text-4xl mx-auto mb-2" aria-hidden="true" />
-            <span className="font-bold text-lg">Event</span>
-          </div>
-        </div>
-      )}
+          </Link>
+        ) : (
+          <img 
+            src={displayImageUrl} 
+            alt={`Event: ${title}`}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+      </div>
       
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">

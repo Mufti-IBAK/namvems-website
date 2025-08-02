@@ -92,9 +92,11 @@ export default function EventsPage() {
           </div>
           <h2 className="text-2xl font-bold text-text mb-4">Something went wrong</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <PrimaryButton onClick={fetchEvents}>
-            Try Again
-          </PrimaryButton>
+          <div className="inline-block">
+            <PrimaryButton onClick={fetchEvents}>
+              Try Again
+            </PrimaryButton>
+          </div>
         </div>
       </div>
     )

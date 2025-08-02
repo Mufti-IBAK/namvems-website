@@ -59,7 +59,7 @@ export default function Header() {
           
           <div className="flex items-center space-x-4">
             <button 
-              className="hidden md:block bg-primary hover:bg-opacity-90 text-text font-semibold py-2 px-6 rounded-xl transition-all duration-300 interactive-button shadow-md hover:shadow-lg"
+              className="hidden md:block bg-primary hover:bg-opacity-90 text-black font-semibold py-2 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               aria-label="Login to your account"
             >
               Login
@@ -99,7 +99,7 @@ export default function Header() {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 flex items-center ${
+                  className={`mobile-menu-item py-3 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 flex items-center ${
                     pathname === link.path ? 'text-primary bg-primary/10' : 'text-text'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
@@ -110,7 +110,7 @@ export default function Header() {
                 </Link>
               ))}
               <button 
-                className="mobile-menu-item bg-primary hover:bg-opacity-90 text-text font-semibold py-3 px-4 rounded-xl transition-all duration-300 mt-2 interactive-button"
+                className="mobile-menu-item bg-primary hover:bg-opacity-90 text-black font-semibold py-3 px-4 rounded-xl transition-all duration-300 mt-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 onClick={() => setIsMenuOpen(false)}
                 aria-label="Login to your account"
               >
