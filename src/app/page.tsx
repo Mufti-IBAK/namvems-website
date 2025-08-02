@@ -6,6 +6,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton'
 import EventCard from '@/components/cards/EventCard'
 import ResourceCard from '@/components/cards/ResourceCard'
 import ParallaxSection from '@/components/ParallaxSection'
+import { FaTelegram } from 'react-icons/fa'
 
 export default function Home() {
   useGSAPAnimations()
@@ -195,55 +196,64 @@ export default function Home() {
       </section>
 
       {/* Resources Preview */}
-      <section className="py-20 stagger-container" aria-labelledby="resources-heading">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 id="resources-heading" className="text-3xl md:text-4xl font-bold text-text mb-4">
-              Featured Resources
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto mb-6">
-              Download handbooks, guides, and educational materials
-            </p>
-            <div className="w-20 h-1 bg-primary mx-auto"></div>
+   <section className="py-20 stagger-container" aria-labelledby="resources-heading">
+  <div className="container mx-auto px-4">
+    <div className="text-center mb-16">
+      <h2 id="resources-heading" className="text-3xl md:text-4xl font-bold text-text mb-4">
+        Featured Resources
+      </h2>
+      <p className="text-gray-600 max-w-2xl mx-auto mb-6">
+        Download handbooks, guides, and educational materials
+      </p>
+      <div className="w-20 h-1 bg-primary mx-auto"></div>
+    </div>
+    
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ResourceCard
+        title="Student Handbook 2024"
+        type="handbook"
+        description="Complete guide for new members with organization policies and resources."
+        fileSize="2.4 MB"
+        downloadUrl="#"
+        onDownload={handleDownload}
+      />
+      <ResourceCard
+        title="Career Development Guide"
+        type="guide"
+        description="Tips and resources for building a successful career in veterinary medicine."
+        fileSize="1.8 MB"
+        downloadUrl="#"
+        onDownload={handleDownload}
+      />
+      <ResourceCard
+        title="Interview Preparation Video"
+        type="video"
+        description="Expert tips for veterinary school interviews and common questions."
+        fileSize="45.2 MB"
+        downloadUrl="#"
+        onDownload={handleDownload}
+      />
+      <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white flex flex-col justify-between">
+        <div>
+          <div className="flex justify-center mb-4">
+            <FaTelegram className="text-4xl" />
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ResourceCard
-              title="Student Handbook 2024"
-              type="handbook"
-              description="Complete guide for new members with organization policies and resources."
-              fileSize="2.4 MB"
-              downloadUrl="#"
-              onDownload={handleDownload}
-            />
-            <ResourceCard
-              title="Career Development Guide"
-              type="guide"
-              description="Tips and resources for building a successful career in veterinary medicine."
-              fileSize="1.8 MB"
-              downloadUrl="#"
-              onDownload={handleDownload}
-            />
-            <ResourceCard
-              title="Interview Preparation Video"
-              type="video"
-              description="Expert tips for veterinary school interviews and common questions."
-              fileSize="45.2 MB"
-              downloadUrl="#"
-              onDownload={handleDownload}
-            />
-            <ResourceCard
-              title="Campus Map"
-              type="image"
-              description="Detailed map of the veterinary school campus with key locations marked."
-              fileSize="3.1 MB"
-              downloadUrl="#"
-              onDownload={handleDownload}
-            />
-          </div>
+          <h3 className="text-lg font-bold mb-2 text-center">E-Library Access</h3>
+          <p className="text-sm mb-4 text-center">
+            Join our Telegram channel for hundreds of veterinary and Islamic resources
+          </p>
         </div>
-      </section>
-
+        <Link 
+          href="/elibrary"
+          className="w-full bg-white text-blue-600 hover:bg-gray-100 font-semibold py-2 px-4 rounded-xl transition-all duration-300 text-center text-sm"
+          aria-label="Access our Telegram e-library"
+        >
+          Join Now
+        </Link>
+      </div>
+    </div>
+  </div>
+</section>
       {/* Community Section */}
       <ParallaxSection 
         backgroundImageUrl={communityImageUrl}

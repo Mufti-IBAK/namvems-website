@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { FaTelegram } from 'react-icons/fa'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,6 +14,7 @@ export default function Header() {
     { name: 'Home', path: '/' },
     { name: 'Events', path: '/events' },
     { name: 'Resources', path: '/resources' },
+    { name: 'E-Library', path: '/elibrary' },
     { name: 'About', path: '/about' },
   ]
 
@@ -44,11 +46,12 @@ export default function Header() {
               <Link
                 key={link.path}
                 href={link.path}
-                className={`font-medium transition-colors duration-300 hover:text-primary ${
+                className={`font-medium transition-colors duration-300 hover:text-primary flex items-center ${
                   pathname === link.path ? 'text-primary' : 'text-text'
                 }`}
                 aria-current={pathname === link.path ? 'page' : undefined}
               >
+                {link.name === 'E-Library' && <FaTelegram className="mr-1" />}
                 {link.name}
               </Link>
             ))}
@@ -66,7 +69,7 @@ export default function Header() {
             <button 
               className="md:hidden text-text focus:outline-none"
               onClick={toggleMenu}
-              aria-expanded={isMenuOpen || undefined}
+              aria-expanded={isMenuOpen.toString()}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
               aria-controls="mobile-menu"
             >
@@ -96,12 +99,13 @@ export default function Header() {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 ${
+                  className={`mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 flex items-center ${
                     pathname === link.path ? 'text-primary bg-primary/10' : 'text-text'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                   aria-current={pathname === link.path ? 'page' : undefined}
                 >
+                  {link.name === 'E-Library' && <FaTelegram className="mr-2" />}
                   {link.name}
                 </Link>
               ))}
