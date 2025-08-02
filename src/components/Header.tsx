@@ -1,33 +1,138 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState } from 'react'
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import gsap from "gsap";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
+	const pathname = usePathname();
 
-  return (
-    <nav className="bg-white shadow-md py-4 px-6">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" />
-          <span className="text-xl font-bold text-text">NAMVEMS</span>
-        </Link>
-        
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-6">
-          <Link href="/" className="text-text hover:text-primary transition-colors">Home</Link>
-          <Link href="/events" className="text-text hover:text-primary transition-colors">Events</Link>
-          <Link href="/resources" className="text-text hover:text-primary transition-colors">Resources</Link>
-          <Link href="/about" className="text-text hover:text-primary transition-colors">About</Link>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <button className="bg-primary hover:bg-opacity-90 text-text font-semibold py-2 px-4 rounded-xl transition-colors">
-            Login
-          </button>
-        </div>
-      </div>
-    </nav>
-  )
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrolled(window.scrollY > 20);
+		};
+
+		window.addEventListener("scroll", handleScroll);
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
+
+	useEffect(() => {
+		if (isMenuOpen) {
+			gsap.fromTo(
+				".mobile-menu-item",
+				{ opacity: 0, x: -20 },
+				{ opacity: 1, x: 0, duration: 0.3, stagger: 0.1 }
+			);
+		}
+	}, [isMenuOpen]);
+
+	const navLinks = [
+		{ name: "Home", path: "/" },
+		{ name: "Events", path: "/events" },
+		{ name: "Resources", path: "/resources" },
+		{ name: "About", path: "/about" }
+	];
+
+	return (
+		<nav
+			className={`fixed w-full z-50 transition-all duration-300 ${
+				scrolled
+					? "bg-white shadow-md py-3"
+					: "bg-white/90 backdrop-blur-sm py-4"
+			}`}
+		>
+			<div className="container mx-auto px-4 md:px-6">
+				<div className="flex justify-between items-center">
+					<Link href="/" className="flex items-center space-x-2">
+						{/* Logo Image */}
+						<div className="relative w-10 h-10">
+							<Image
+								src="/assets/logo.png"
+								alt="NAMVEMS Logo"
+								width={40}
+								height={40}
+								className="object-contain"
+							/>
+						</div>
+						<span className="text-xl font-bold text-text">NAMVEMS</span>
+					</Link>
+
+					{/* Desktop Menu */}
+					<div className="hidden md:flex space-x-8">
+						{navLinks.map((link) => (
+							<Link
+								key={link.path}
+								href={link.path}
+								className={`font-medium transition-colors duration-300 hover:text-primary ${
+									pathname === link.path ? "text-primary" : "text-text"
+								}`}
+							>
+								{link.name}
+							</Link>
+						))}
+					</div>
+
+					<div className="flex items-center space-x-4">
+						<button className="hidden md:block bg-primary hover:bg-opacity-90 text-text font-semibold py-2 px-6 rounded-xl transition-all duration-300 interactive-button shadow-md hover:shadow-lg">
+							Login
+						</button>
+
+						{/* Mobile Menu Button */}
+						<button
+							className="md:hidden text-text focus:outline-none"
+							onClick={() => setIsMenuOpen(!isMenuOpen)}
+							aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
+						>
+							<div className="w-6 h-6 flex flex-col justify-center items-center">
+								<span
+									className={`block w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ${
+										isMenuOpen ? "rotate-45 translate-y-1" : "-translate-y-0.5"
+									}`}
+								></span>
+								<span
+									className={`block w-6 h-0.5 bg-text rounded-sm my-1 transition-all duration-300 ${
+										isMenuOpen ? "opacity-0" : "opacity-100"
+									}`}
+								></span>
+								<span
+									className={`block w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ${
+										isMenuOpen ? "-rotate-45 -translate-y-1" : "translate-y-0.5"
+									}`}
+								></span>
+							</div>
+						</button>
+					</div>
+				</div>
+
+				{/* Mobile Menu */}
+				{isMenuOpen && (
+					<div className="md:hidden mt-4 pb-4">
+						<div className="flex flex-col space-y-3">
+							{navLinks.map((link) => (
+								<Link
+									key={link.path}
+									href={link.path}
+									className={`mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 ${
+										pathname === link.path
+											? "text-primary bg-primary/10"
+											: "text-text"
+									}`}
+									onClick={() => setIsMenuOpen(false)}
+								>
+									{link.name}
+								</Link>
+							))}
+							<button className="mobile-menu-item bg-primary hover:bg-opacity-90 text-text font-semibold py-3 px-4 rounded-xl transition-all duration-300 mt-2 interactive-button">
+								Login
+							</button>
+						</div>
+					</div>
+				)}
+			</div>
+		</nav>
+	);
 }

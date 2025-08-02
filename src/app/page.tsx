@@ -1,30 +1,279 @@
-import Link from 'next/link'
+"use client";
+
+import { useGSAPAnimations } from "@/hooks/useGSAPAnimations";
+import PrimaryButton from "@/components/buttons/PrimaryButton";
+import SecondaryButton from "@/components/buttons/SecondaryButton";
+import EventCard from "@/components/cards/EventCard";
+import ResourceCard from "@/components/cards/ResourceCard";
+import ParallaxSection from "@/components/ParallaxSection";
 
 export default function Home() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-text mb-6">
-          Welcome to <span className="text-primary">NAMVEMS</span>
-        </h1>
-        <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
-          Nigerian Association of Muslim Veterinary Medical Students
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link 
-            href="/join" 
-            className="bg-primary hover:bg-opacity-90 text-text font-semibold py-3 px-6 rounded-xl transition-colors inline-block text-center"
-          >
-            Join Us
-          </Link>
-          <Link 
-            href="/events" 
-            className="bg-accent hover:bg-opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-colors inline-block text-center"
-          >
-            View Events
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
+	useGSAPAnimations();
+
+	const handleRegister = () => {
+		console.log("Register button clicked");
+	};
+
+	const handleDownload = () => {
+		console.log("Download button clicked");
+	};
+
+	// Online image URLs for placeholders
+	const heroImageUrl =
+		"https://images.unsplash.com/photo-1597848212624-a19eb35e2651?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80";
+	const aboutImageUrl =
+		"https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80";
+	const communityImageUrl =
+		"https://images.unsplash.com/photo-1577962916589-48cd4d594a51?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80";
+
+	return (
+		<div className="min-h-screen">
+			{/* Hero Section with Parallax */}
+			<div className="relative h-screen overflow-hidden">
+				<div
+					className="absolute inset-0 bg-cover bg-center parallax-element"
+					style={{
+						backgroundImage: `url(${heroImageUrl})`,
+						backgroundAttachment: "fixed"
+					}}
+				>
+					<div className="absolute inset-0 bg-black bg-opacity-60"></div>
+				</div>
+
+				<div className="relative z-10 h-full flex items-center">
+					<div className="container mx-auto px-4 text-center">
+						<h1 className="hero-title text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+							Welcome to <span className="text-primary">NAMVEMS</span>
+						</h1>
+						<p className="hero-subtitle text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto mb-10">
+							Empowering Muslim Veterinary Medical Students Nationwide
+						</p>
+						<div className="hero-buttons flex flex-col sm:flex-row justify-center gap-4">
+							<PrimaryButton size="lg">Join Our Community</PrimaryButton>
+							<SecondaryButton size="lg" variant="outline">
+								Explore Events
+							</SecondaryButton>
+						</div>
+					</div>
+				</div>
+
+				{/* Scroll indicator */}
+				<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+					<div className="w-8 h-12 rounded-full border-2 border-white flex justify-center">
+						<div className="w-1 h-3 bg-white mt-2 rounded-full animate-pulse"></div>
+					</div>
+				</div>
+			</div>
+
+			{/* About Section */}
+			<section className="py-20 fade-in-up">
+				<div className="container mx-auto px-4">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+							About Our Organization
+						</h2>
+						<div className="w-20 h-1 bg-primary mx-auto"></div>
+					</div>
+
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+						<div>
+							<h3 className="text-2xl font-bold text-text mb-6">
+								Supporting the Next Generation of Veterinary Professionals
+							</h3>
+							<p className="text-gray-700 mb-6 text-lg">
+								The National Association of Muslim Veterinary Medical Students
+								(NAMVEMS) is dedicated to fostering a supportive community for
+								Muslim students pursuing careers in veterinary medicine. We
+								provide academic resources, professional networking
+								opportunities, and spiritual guidance.
+							</p>
+							<p className="text-gray-700 mb-8 text-lg">
+								Our mission is to create an inclusive environment where students
+								can thrive academically and personally while maintaining their
+								faith and values.
+							</p>
+							<PrimaryButton>Learn More About Us</PrimaryButton>
+						</div>
+						<div className="relative">
+							<div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
+								<div
+									className="absolute inset-0 bg-cover bg-center"
+									style={{ backgroundImage: `url(${aboutImageUrl})` }}
+								></div>
+							</div>
+							<div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary rounded-xl z-[-1]"></div>
+							<div className="absolute -top-6 -left-6 w-24 h-24 bg-accent rounded-xl z-[-1]"></div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Stats Section */}
+			<ParallaxSection
+				backgroundImageUrl="https://images.unsplash.com/photo-1581595219310-3c40e30f8484?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+				height="h-80"
+				overlayOpacity={0.7}
+			>
+				<div className="container mx-auto px-4 text-center text-white">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div className="fade-in-up">
+							<div className="text-5xl font-bold mb-2">500+</div>
+							<div className="text-xl">Active Members</div>
+						</div>
+						<div className="fade-in-up">
+							<div className="text-5xl font-bold mb-2">25+</div>
+							<div className="text-xl">Campus Chapters</div>
+						</div>
+						<div className="fade-in-up">
+							<div className="text-5xl font-bold mb-2">15</div>
+							<div className="text-xl">Years of Service</div>
+						</div>
+					</div>
+				</div>
+			</ParallaxSection>
+
+			{/* Events Preview */}
+			<section className="py-20 bg-gray-50 stagger-container">
+				<div className="container mx-auto px-4">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+							Upcoming Events
+						</h2>
+						<p className="text-gray-600 max-w-2xl mx-auto mb-6">
+							Join us for conferences, workshops, and networking opportunities
+						</p>
+						<div className="w-20 h-1 bg-primary mx-auto"></div>
+					</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+						<EventCard
+							title="Annual Conference 2024"
+							date={new Date("2024-03-15T09:00:00")}
+							description="Join us for our annual conference featuring keynote speakers and networking opportunities with industry professionals."
+							location="Convention Center, Chicago"
+							category="Conference"
+							maxAttendees={150}
+							registeredCount={87}
+							onRegister={handleRegister}
+							imageUrl="https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+						/>
+						<EventCard
+							title="Study Group Session"
+							date={new Date("2024-02-20T18:00:00")}
+							description="Weekly study group for veterinary board exam preparation with peer support and expert guidance."
+							location="Online via Zoom"
+							category="Study Group"
+							onRegister={handleRegister}
+							imageUrl="https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+						/>
+						<EventCard
+							title="Career Development Workshop"
+							date={new Date("2024-04-05T14:00:00")}
+							description="Learn about career paths in veterinary medicine and get resume review from industry professionals."
+							location="University Campus"
+							category="Workshop"
+							maxAttendees={50}
+							registeredCount={48}
+							onRegister={handleRegister}
+							imageUrl="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+						/>
+					</div>
+
+					<div className="text-center mt-12">
+						<SecondaryButton size="lg">View All Events</SecondaryButton>
+					</div>
+				</div>
+			</section>
+
+			{/* Resources Preview */}
+			<section className="py-20 stagger-container">
+				<div className="container mx-auto px-4">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl md:text-4xl font-bold text-text mb-4">
+							Featured Resources
+						</h2>
+						<p className="text-gray-600 max-w-2xl mx-auto mb-6">
+							Download handbooks, guides, and educational materials
+						</p>
+						<div className="w-20 h-1 bg-primary mx-auto"></div>
+					</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+						<ResourceCard
+							title="Student Handbook 2024"
+							type="handbook"
+							description="Complete guide for new members with organization policies and resources."
+							fileSize="2.4 MB"
+							downloadUrl="#"
+							onDownload={handleDownload}
+						/>
+						<ResourceCard
+							title="Career Development Guide"
+							type="guide"
+							description="Tips and resources for building a successful career in veterinary medicine."
+							fileSize="1.8 MB"
+							downloadUrl="#"
+							onDownload={handleDownload}
+						/>
+						<ResourceCard
+							title="Interview Preparation Video"
+							type="video"
+							description="Expert tips for veterinary school interviews and common questions."
+							fileSize="45.2 MB"
+							downloadUrl="#"
+							onDownload={handleDownload}
+						/>
+						<ResourceCard
+							title="Campus Map"
+							type="image"
+							description="Detailed map of the veterinary school campus with key locations marked."
+							fileSize="3.1 MB"
+							downloadUrl="#"
+							onDownload={handleDownload}
+						/>
+					</div>
+				</div>
+			</section>
+
+			{/* Community Section */}
+			<ParallaxSection
+				backgroundImageUrl={communityImageUrl}
+				height="h-96"
+				overlayOpacity={0.6}
+			>
+				<div className="container mx-auto px-4 text-center text-white">
+					<h2 className="text-3xl md:text-4xl font-bold mb-6 fade-in-up">
+						Join Our Growing Community
+					</h2>
+					<p className="text-xl mb-8 max-w-2xl mx-auto fade-in-up">
+						Connect with fellow students, professionals, and mentors who share
+						your passion
+					</p>
+					<div className="fade-in-up">
+						<PrimaryButton size="lg" variant="outline">
+							Become a Member
+						</PrimaryButton>
+					</div>
+				</div>
+			</ParallaxSection>
+
+			{/* CTA Section */}
+			<section className="py-20 bg-gradient-to-r from-primary to-accent">
+				<div className="container mx-auto px-4 text-center">
+					<h2 className="text-3xl md:text-4xl font-bold text-black mb-6">
+						Ready to Start Your Journey?
+					</h2>
+					<p className="text-xl text-black mb-8 max-w-2xl mx-auto">
+						Join thousands of students who are already part of our community
+					</p>
+					<div className="flex flex-col sm:flex-row justify-center gap-4">
+						<PrimaryButton size="lg">Sign Up Now</PrimaryButton>
+						<SecondaryButton size="lg" variant="outline">
+							Contact Us
+						</SecondaryButton>
+					</div>
+				</div>
+			</section>
+		</div>
+	);
 }
