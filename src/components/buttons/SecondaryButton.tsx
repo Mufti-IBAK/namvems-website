@@ -1,7 +1,7 @@
-import React, { ButtonHTMLAttributes } from 'react';
+import React, { ButtonHTMLAttributes , ReactNode} from 'react';
 
 interface SecondaryButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: 'default' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;

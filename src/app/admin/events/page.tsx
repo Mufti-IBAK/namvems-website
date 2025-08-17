@@ -1,28 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'; // Import useCallback
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import EventForm from '@/components/forms/EventForm';
+import { Event } from '@/lib/types/event';
 
-interface Event {
-  id?: number;
-  title: string;
-  description?: string;
-  date: string;
-  location?: string;
-  category?: string;
-  max_attendees?: number;
-  image_url?: string;
-}
-
-const initialEventState: Event = {
+// FIX: Date is initialized as an empty string to match the form input
+const initialEventState: Partial<Event> = {
   title: '',
   date: '',
   description: '',
   location: '',
-  category: '',
-  max_attendees: 0,
-  image_url: '',
+  category: 'Other',
+  maxAttendees: 0,
+  imageUrl: '',
 };
 
 export default function ManageEventsPage() {
@@ -31,16 +22,12 @@ export default function ManageEventsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event>(initialEventState);
+  const [selectedEvent, setSelectedEvent] = useState<Partial<Event>>(initialEventState);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  // FIX: Wrap fetchEvents in useCallback to stabilize the function
   const fetchEvents = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('date', { ascending: false });
-
+    const { data, error } = await supabase.from('events').select('*').order('date', { ascending: false });
     if (error) {
       console.error('Error fetching events:', error);
       alert('Failed to fetch events.');
@@ -48,42 +35,70 @@ export default function ManageEventsPage() {
       setEvents(data || []);
     }
     setLoading(false);
-  }, [supabase]); // Dependency array for useCallback
+  }, [supabase]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]); // FIX: Add fetchEvents to the dependency array
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
   const openModalToCreate = () => {
     setSelectedEvent(initialEventState);
+    setImageFile(null);
     setIsModalOpen(true);
   };
 
   const openModalToEdit = (event: Event) => {
     setSelectedEvent(event);
+    setImageFile(null);
     setIsModalOpen(true);
   };
+  
+  const closeModal = () => setIsModalOpen(false);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setImageFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    // FIX: Use const as imageUrl is not reassigned
+    const initialImageUrl = selectedEvent.imageUrl || null;
+    let finalImageUrl = initialImageUrl;
 
-    const { id, ...eventData } = selectedEvent;
-
-    let error;
-    if (id) {
-      ({ error } = await supabase.from('events').update(eventData).eq('id', id));
-    } else {
-      ({ error } = await supabase.from('events').insert([eventData]));
+    if (imageFile) {
+      const fileName = `${Date.now()}_${imageFile.name}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage.from('event-images').upload(fileName, imageFile);
+      if (uploadError) {
+        alert('Error uploading image: ' + uploadError.message);
+        setIsSubmitting(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from('event-images').getPublicUrl(uploadData.path);
+      finalImageUrl = urlData.publicUrl;
     }
 
+    const eventPayload = {
+      title: selectedEvent.title,
+      description: selectedEvent.description,
+      date: selectedEvent.date,
+      location: selectedEvent.location,
+      category: selectedEvent.category,
+      max_attendees: selectedEvent.maxAttendees,
+      image_url: finalImageUrl,
+    };
+
+    let request;
+    if (selectedEvent.id) {
+      request = supabase.from('events').update(eventPayload).eq('id', selectedEvent.id);
+    } else {
+      request = supabase.from('events').insert([eventPayload]);
+    }
+
+    const { error } = await request;
+
     if (error) {
-      console.error('Error saving event:', error);
-      alert('Failed to save event. Check the console for details.');
+      alert('Error saving event: ' + error.message);
     } else {
       await fetchEvents();
       closeModal();
@@ -95,8 +110,7 @@ export default function ManageEventsPage() {
     if (window.confirm('Are you sure you want to delete this event?')) {
       const { error } = await supabase.from('events').delete().eq('id', eventId);
       if (error) {
-        console.error('Error deleting event:', error);
-        alert('Failed to delete event.');
+        alert('Error deleting event: ' + error.message);
       } else {
         await fetchEvents();
       }
@@ -107,10 +121,7 @@ export default function ManageEventsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Manage Events</h1>
-        <button
-          onClick={openModalToCreate}
-          className="bg-primary text-black font-medium py-2 px-4 rounded-md hover:bg-yellow-500 transition-colors"
-        >
+        <button onClick={openModalToCreate} className="bg-primary text-black font-medium py-2 px-4 rounded-md hover:bg-yellow-500 transition-colors">
           + Add New Event
         </button>
       </div>
@@ -149,13 +160,8 @@ export default function ManageEventsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl relative">
             <h2 className="text-xl font-bold mb-4">{selectedEvent.id ? 'Edit Event' : 'Add New Event'}</h2>
-            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">&times;</button>
-            <EventForm
-              event={selectedEvent}
-              setEvent={setSelectedEvent}
-              onSubmit={handleSubmit}
-              isLoading={isSubmitting}
-            />
+            <button onClick={closeModal} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <EventForm event={selectedEvent} setEvent={setSelectedEvent} onSubmit={handleSubmit} isLoading={isSubmitting} onFileChange={handleFileChange} />
           </div>
         </div>
       )}

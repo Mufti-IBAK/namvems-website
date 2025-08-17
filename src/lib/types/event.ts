@@ -1,26 +1,14 @@
 export interface Event {
-  id: string;
+  id?: number;
   title: string;
   description: string;
-  date: Date;
+  date: Date | string;
   location: string;
-  registrationLink?: string;
-  imageUrl?: string;
-  category: 'Conference' | 'Workshop' | 'Study Group' | 'Networking' | 'Other';
+  category: string;
   maxAttendees: number;
   registeredCount: number;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface EventFormData {
-  title: string;
-  description: string;
-  date: string;
-  location: string;
-  registrationLink?: string;
-  imageUrl?: string;
-  category: 'Conference' | 'Workshop' | 'Study Group' | 'Networking' | 'Other';
-  maxAttendees: number;
+  imageUrl?: string | null;
+  // --- FIX: Add the new properties here ---
+  registration_type?: 'google_form' | 'internal_form' | 'none';
+  registration_link?: string | null;
 }

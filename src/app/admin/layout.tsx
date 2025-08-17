@@ -1,58 +1,69 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useState} from 'react'; // REMOVED: Unused 'ReactNode' import is no longer needed
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+// FIXED: Removed FaSignOutAlt as it was unused, but let's re-add it and use it.
+import { FaCalendarAlt, FaBook, FaSignOutAlt, FaHome, FaBars, FaTimes } from 'react-icons/fa';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { user, loading, signOut } = useAuth();
+// FIXED: The type for children is React.ReactNode
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  // FIXED: Removed 'signOut' as it was unused, but now let's use it.
+  const { user, loading, signOut, userRole } = useAuth();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
-    // If not loading and no user is found, redirect to login
-    if (!loading && !user) {
-      router.push('/login?redirect=/admin');
+    if (!loading && (!user || userRole !== 'admin')) {
+      router.push('/login');
     }
-  }, [user, loading, router]);
+  }, [user, userRole, loading, router]);
 
-  // While loading, show a spinner or a blank screen to prevent content flashing
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (loading || !user || userRole !== 'admin') {
+    return <div>Loading...</div>; // Or a proper loading spinner component
   }
 
-  // If user is logged in, show the admin layout and content
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/admin" className="text-xl font-bold text-gray-800">Admin Dashboard</Link>
-            </div>
-            <div className="flex items-center space-x-4">
-               <Link href="/admin/events" className="text-gray-600 hover:text-primary">Manage Events</Link>
-               <Link href="/admin/resources" className="text-gray-600 hover:text-primary">Manage Resources</Link>
-               <button onClick={signOut} className="bg-primary text-black text-sm font-medium py-2 px-4 rounded-md hover:bg-yellow-500">
-                 Sign Out
-               </button>
-            </div>
-          </div>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* --- COLLAPSIBLE SIDEBAR --- */}
+      <aside className={`bg-white shadow-lg transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+        <div className="p-4 border-b flex items-center justify-between">
+            <Link href="/" className={`text-2xl font-bold text-primary transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>NAMVEMS</Link>
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-md hover:bg-gray-100">
+                {isSidebarOpen ? <FaTimes /> : <FaBars />}
+            </button>
         </div>
-      </nav>
-      <main>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
+        <nav className="mt-6 flex-1"> {/* Added flex-1 to push the bottom content down */}
+            <Link href="/admin/events" className="flex items-center py-3 px-6 text-gray-700 hover:bg-primary hover:text-black transition-colors">
+                <FaCalendarAlt size={20} />
+                <span className={`ml-4 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Manage Events</span>
+            </Link>
+            <Link href="/admin/resources" className="flex items-center py-3 px-6 text-gray-700 hover:bg-primary hover:text-black transition-colors">
+                <FaBook size={20} />
+                <span className={`ml-4 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Manage Resources</span>
+            </Link>
+        </nav>
+        <div className={`border-t p-4 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
+            <Link href="/" className="flex items-center py-3 px-6 text-gray-700 hover:bg-gray-100 rounded-md transition-colors text-sm mb-2">
+                <FaHome size={20} />
+                <span className={`ml-4 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Back to Site</span>
+            </Link>
+            {/* ADDED: A sign-out button to use the 'signOut' function and 'FaSignOutAlt' icon */}
+            <button onClick={() => signOut()} className="flex items-center w-full py-3 px-6 text-red-500 hover:bg-red-100 rounded-md transition-colors text-sm">
+                <FaSignOutAlt size={20} />
+                <span className={`ml-4 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Sign Out</span>
+            </button>
         </div>
-      </main>
+      </aside>
+
+      {/* --- MAIN CONTENT AREA --- */}
+      <div className="flex-1 flex flex-col">
+          <main className="flex-1 p-6">
+              {/* FIXED: Render the children prop here */}
+              {children}
+          </main>
+      </div>
     </div>
   );
 }
