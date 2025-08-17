@@ -3,217 +3,117 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { FaTelegram, FaUser, FaSignOutAlt } from 'react-icons/fa'
-import gsap from 'gsap'
 import { useAuth } from '@/context/AuthContext'
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const { user, signOut } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { user, userRole, signOut } = useAuth();
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Events', path: '/events' },
-    { name: 'Resources', path: '/resources' },
-    { name: 'E-Library', path: '/elibrary' },
-    { name: 'About', path: '/about' },
-  ]
-
-  // GSAP animation for mobile menu
   useEffect(() => {
-    if (isMenuOpen) {
-      // Animate menu items
-      gsap.fromTo('.mobile-menu-item-animate',
-        { opacity: 0, y: 20 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.4, 
-          stagger: 0.1,
-          ease: 'power2.out'
-        }
-      )
-      
-      // Animate menu container
-      gsap.fromTo('.mobile-menu-container',
-        { opacity: 0, height: 0 },
-        { 
-          opacity: 1, 
-          height: 'auto',
-          duration: 0.3,
-          ease: 'power2.out'
-        }
-      )
-    } else {
-      // Animate menu closing
-      gsap.to('.mobile-menu-container',
-        { 
-          opacity: 0, 
-          height: 0,
-          duration: 0.3,
-          ease: 'power2.in'
-        }
-      )
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const UserDisplay = () => {
+    if (!user) {
+      return (
+        <Link href="/login" className="hidden md:block bg-primary hover:bg-opacity-90 text-text font-semibold py-2 px-6 rounded-xl transition-all duration-300">
+          Login
+        </Link>
+      );
     }
-  }, [isMenuOpen])
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
-  }
+    return (
+      <div className="hidden md:flex items-center space-x-4">
+        <span className="font-medium text-gray-700">
+          Welcome, {user.user_metadata?.full_name?.split(' ')[0] || 'Member'}
+        </span>
+        <button 
+          onClick={signOut}
+          className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 text-sm"
+        >
+          Logout
+        </button>
+      </div>
+    );
+  };
 
   return (
-    <nav className="bg-white shadow-sm py-4 px-4 md:px-6" role="navigation" aria-label="Main navigation">
-      <div className="container mx-auto">
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${ scrolled ? 'bg-white shadow-md py-3' : 'bg-white/90 backdrop-blur-sm py-4' }`}>
+      <div className="container mx-auto px-4 md:px-6">
         <div className="flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2" aria-label="NAMVEMS Home">
-            {/* Logo Image */}
+          <Link href="/" className="flex items-center space-x-2">
             <div className="relative w-10 h-10">
-              <Image
-                src="/assets/logo.png"
-                alt="NAMVEMS Logo"
-                width={40}
-                height={40}
-                className="object-contain"
-              />
+              <Image src="/assets/logo.png" alt="NAMVEMS Logo" layout="fill" objectFit="contain" />
             </div>
             <span className="text-xl font-bold text-text">NAMVEMS</span>
           </Link>
           
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                href={link.path}
-                className={`font-medium transition-colors duration-300 hover:text-primary flex items-center ${
-                  pathname === link.path ? 'text-primary' : 'text-text'
-                }`}
-                aria-current={pathname === link.path ? 'page' : undefined}
-              >
-                {link.name === 'E-Library' && <FaTelegram className="mr-1" />}
-                {link.name}
-              </Link>
-            ))}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="hidden md:flex items-center space-x-4">
-                <Link 
-                  href="/dashboard" 
-                  className="flex items-center text-text hover:text-primary transition-colors"
-                >
-                  <FaUser className="mr-2" />
-                  <span className="hidden lg:inline">
-                    {user.user_metadata?.full_name?.split(' ')[0] || 'Account'}
-                  </span>
-                </Link>
-                <button 
-                  onClick={handleSignOut}
-                  className="flex items-center text-text hover:text-alert transition-colors"
-                  aria-label="Sign out"
-                >
-                  <FaSignOutAlt className="mr-1" />
-                  <span className="hidden lg:inline">Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <Link 
-                href="/login" 
-                className="hidden md:block bg-primary hover:bg-yellow-500 text-black font-semibold py-2 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                aria-label="Login to your account"
-              >
-                Login
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="font-medium transition-colors duration-300 hover:text-primary text-text">Home</Link>
+            <Link href="/events" className="font-medium transition-colors duration-300 hover:text-primary text-text">Events</Link>
+            <Link href="/resources" className="font-medium transition-colors duration-300 hover:text-primary text-text">Resources</Link>
+            <Link href="/about" className="font-medium transition-colors duration-300 hover:text-primary text-text">About</Link>
+            {userRole === 'admin' && (
+              <Link href="/admin" className="font-medium text-red-600 hover:text-primary transition-colors duration-300">
+                Admin
               </Link>
             )}
-            
-            {/* Mobile Menu Button */}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <UserDisplay />
             <button 
-              className="md:hidden text-text focus:outline-none w-10 h-10 flex items-center justify-center"
-              onClick={toggleMenu}
-              aria-expanded={isMenuOpen.toString()}
-              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-              aria-controls="mobile-menu"
+                className="md:hidden text-text focus:outline-none"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle mobile menu"
+                // FIX: Pass the boolean directly. React handles the 'true'/'false' string conversion.
+                // The previous error was a conflict between TypeScript's strict HTML types and the linter.
+                // React's own typings for this attribute are correct.
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
             >
-              <div className="relative w-6 h-6 flex flex-col justify-center items-center">
-                <span className={`block absolute w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? 'rotate-45' : '-translate-y-1.5'
-                }`}></span>
-                <span className={`block absolute w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? 'opacity-0' : 'opacity-100'
-                }`}></span>
-                <span className={`block absolute w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ease-in-out ${
-                  isMenuOpen ? '-rotate-45' : 'translate-y-1.5'
-                }`}></span>
+              <div className="w-6 h-6 flex flex-col justify-center items-center">
+                  <span className={`block w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
+                  <span className={`block w-6 h-0.5 bg-text rounded-sm my-1 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                  <span className={`block w-6 h-0.5 bg-text rounded-sm transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
               </div>
             </button>
           </div>
         </div>
-        
-        {/* Mobile Menu */}
-        <div 
-          id="mobile-menu" 
-          className="mobile-menu-container md:hidden overflow-hidden"
-        >
-          <div className="pb-4 pt-2">
-            <div className="flex flex-col space-y-2">
-              {navLinks.map((link, index) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className={`mobile-menu-item-animate py-3 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 flex items-center ${
-                    pathname === link.path ? 'text-primary bg-primary/10' : 'text-text'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={pathname === link.path ? 'page' : undefined}
-                >
-                  {link.name === 'E-Library' && <FaTelegram className="mr-2" />}
-                  {link.name}
-                </Link>
-              ))}
-              
-              {user ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="mobile-menu-item-animate py-3 px-4 rounded-xl font-medium text-text hover:bg-gray-100 flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <FaUser className="mr-2" />
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleSignOut()
-                      setIsMenuOpen(false)
-                    }}
-                    className="mobile-menu-item-animate py-3 px-4 rounded-xl font-medium text-alert hover:bg-gray-100 flex items-center w-full text-left"
-                  >
-                    <FaSignOutAlt className="mr-2" />
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link 
-                  href="/login"
-                  className="mobile-menu-item-animate bg-primary hover:bg-yellow-500 text-black font-semibold py-3 px-4 rounded-xl transition-all duration-300 mt-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-label="Login to your account"
-                >
-                  Login
-                </Link>
-              )}
+
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4" id="mobile-menu">
+            <div className="flex flex-col space-y-3">
+                <Link href="/" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link href="/events" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Events</Link>
+                <Link href="/resources" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Resources</Link>
+                <Link href="/about" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>About</Link>
+                {userRole === 'admin' && (
+                    <Link href="/admin" className="mobile-menu-item py-2 px-4 rounded-xl font-medium text-red-600 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>
+                        Admin
+                    </Link>
+                )}
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                    {user ? (
+                        <>
+                            <p className="px-4 mb-2 font-medium text-gray-700">Welcome, {user.user_metadata?.full_name || 'Member'}</p>
+                            <button onClick={() => { signOut(); setIsMenuOpen(false); }} className="mobile-menu-item text-left w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300">
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <Link href="/login" className="mobile-menu-item block text-center bg-primary hover:bg-opacity-90 text-text font-semibold py-3 px-4 rounded-xl transition-all duration-300" onClick={() => setIsMenuOpen(false)}>
+                            Login
+                        </Link>
+                    )}
+                </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </nav>
   )

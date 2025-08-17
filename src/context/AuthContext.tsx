@@ -1,100 +1,89 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase } from '@/lib/supabase/client'
-import { User } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/client'
+import { User, SupabaseClient } from '@supabase/supabase-js'
 
-type AuthContextType = {
-  user: User | null
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>
-  signInWithGoogle: () => Promise<{ error: Error | null }>
-  signOut: () => Promise<void>
-  loading: boolean
+interface AuthContextType {
+  supabase: SupabaseClient;
+  user: User | null;
+  userRole: string | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const supabase = createClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
+    const getSessionAndRole = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
 
-    getUser()
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+
+        if (currentUser) {
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', currentUser.id)
+            .single();
+          
+          if (roleError && roleError.code !== 'PGRST116') throw roleError;
+          setUserRole(roleData?.role || 'member');
+        } else {
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error("Error in getSessionAndRole:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getSessionAndRole();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
+      // FIX: We don't need the arguments here, so we remove them
+      // to clear the "unused-vars" error. Our function handles everything.
+      () => {
+        getSessionAndRole();
       }
-    )
+    );
 
     return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
-
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        }
-      }
-    })
-    
-    return { error }
-  }
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    
-    return { error }
-  }
-
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    
-    return { error }
-  }
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-  }
+    await supabase.auth.signOut();
+    setUser(null);
+    setUserRole(null);
+  };
 
   const value = {
+    supabase,
     user,
-    signUp,
-    signIn,
-    signInWithGoogle,
-    signOut,
+    userRole,
     loading,
-  }
+    signOut,
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
+  return context;
 }

@@ -18,7 +18,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      {/* FIX: The flexbox layout is now defined on the body tag */}
+      <body className={`${inter.className} bg-white flex flex-col min-h-screen`}>
         <AuthProvider>
           <LayoutClient>{children}</LayoutClient>
         </AuthProvider>

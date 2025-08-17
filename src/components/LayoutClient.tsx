@@ -15,13 +15,16 @@ export default function LayoutClient({
 		setMounted(true);
 	}, []);
 
+	// This logic for preventing hydration errors is fine.
 	if (!mounted) return <>{children}</>;
 
+	// FIX: Removed the redundant wrapper div. The main flexbox is now on the body tag.
+	// The <main> tag now correctly grows to fill the available space between header and footer.
 	return (
-		<div className="min-h-screen bg-white flex flex-col">
+		<>
 			<Header />
 			<main className="flex-grow">{children}</main>
 			<Footer />
-		</div>
+		</>
 	);
 }

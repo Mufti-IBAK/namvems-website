@@ -2,6 +2,7 @@ export interface Resource {
   id: string;
   title: string;
   description: string;
+  // FIX: Added 'research' to the list of allowed types
   type: 'handbook' | 'guide' | 'video' | 'image' | 'research' | 'other';
   category: 'academic' | 'career' | 'professional' | 'personal' | 'other';
   fileSize?: string;
