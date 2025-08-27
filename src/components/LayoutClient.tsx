@@ -1,30 +1,27 @@
-"use client";
+// src/components/LayoutClient.tsx
+'use client'
 
-import { useState, useEffect } from "react";
-import Header from "./Header";
-import Footer from "./Footer";
+import { usePathname } from 'next/navigation';
+import AdminLayout from '@/app/(admin)/layout-component'; // Imports the component from Step 1
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
-export default function LayoutClient({
-	children
-}: {
-	children: React.ReactNode;
-}) {
-	const [mounted, setMounted] = useState(false);
+export default function LayoutClient({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
-	useEffect(() => {
-		setMounted(true);
-	}, []);
+  // If the URL path starts with /admin, render our specialized AdminLayout
+  if (pathname.startsWith('/admin')) {
+    return <AdminLayout>{children}</AdminLayout>;
+  }
 
-	// This logic for preventing hydration errors is fine.
-	if (!mounted) return <>{children}</>;
-
-	// FIX: Removed the redundant wrapper div. The main flexbox is now on the body tag.
-	// The <main> tag now correctly grows to fill the available space between header and footer.
-	return (
-		<>
-			<Header />
-			<main className="flex-grow">{children}</main>
-			<Footer />
-		</>
-	);
+  // For all other pages, render the public layout
+  return (
+    <>
+      <Header />
+      <main className="flex-grow pt-20"> {/* Added padding-top to fix header overlap */}
+        {children}
+      </main>
+      <Footer />
+    </>
+  );
 }

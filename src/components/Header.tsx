@@ -18,6 +18,11 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // --- DERIVED STATE FOR CLARITY ---
+  // This makes our JSX cleaner and less error-prone.
+  // It checks if the user has ANY level of admin access.
+  const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+
   const UserDisplay = () => {
     if (!user) {
       return (
@@ -47,7 +52,7 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <div className="relative w-10 h-10">
-              <Image src="/assets/logo.png" alt="NAMVEMS Logo" layout="fill" objectFit="contain" />
+              <Image src="/assets/logo.png" alt="NAMVEMS Logo" fill={true} style={{objectFit: 'contain'}} />
             </div>
             <span className="text-xl font-bold text-text">NAMVEMS</span>
           </Link>
@@ -57,7 +62,9 @@ export default function Header() {
             <Link href="/events" className="font-medium transition-colors duration-300 hover:text-primary text-text">Events</Link>
             <Link href="/resources" className="font-medium transition-colors duration-300 hover:text-primary text-text">Resources</Link>
             <Link href="/about" className="font-medium transition-colors duration-300 hover:text-primary text-text">About</Link>
-            {userRole === 'admin' && (
+
+            {/* --- FIX: Use our new 'isAdmin' variable --- */}
+            {isAdmin && (
               <Link href="/admin" className="font-medium text-red-600 hover:text-primary transition-colors duration-300">
                 Admin
               </Link>
@@ -70,9 +77,6 @@ export default function Header() {
                 className="md:hidden text-text focus:outline-none"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label="Toggle mobile menu"
-                // FIX: Pass the boolean directly. React handles the 'true'/'false' string conversion.
-                // The previous error was a conflict between TypeScript's strict HTML types and the linter.
-                // React's own typings for this attribute are correct.
                 aria-expanded={isMenuOpen}
                 aria-controls="mobile-menu"
             >
@@ -92,11 +96,14 @@ export default function Header() {
                 <Link href="/events" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Events</Link>
                 <Link href="/resources" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Resources</Link>
                 <Link href="/about" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>About</Link>
-                {userRole === 'admin' && (
+                
+                {/* --- FIX: Use our new 'isAdmin' variable here as well --- */}
+                {isAdmin && (
                     <Link href="/admin" className="mobile-menu-item py-2 px-4 rounded-xl font-medium text-red-600 hover:bg-gray-100" onClick={() => setIsMenuOpen(false)}>
-                        Admin
+                        Admin Panel
                     </Link>
                 )}
+
                 <div className="border-t border-gray-200 pt-4 mt-2">
                     {user ? (
                         <>

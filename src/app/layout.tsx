@@ -1,8 +1,9 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import LayoutClient from "@/components/LayoutClient";
+import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* FIX: The flexbox layout is now defined on the body tag */}
-      <body className={`${inter.className} bg-white flex flex-col min-h-screen`}>
+      {/* The body tag is the direct and only child of html */}
+      <body className={`${inter.className} bg-white`}>
+        {/* The AuthProvider wraps everything inside the body */}
         <AuthProvider>
-          <LayoutClient>{children}</LayoutClient>
+          {/* The Toaster is a direct child of the provider, ensuring it has context */}
+          <Toaster position="bottom-right" />
+          {/* The children (your page layouts) are siblings to the Toaster */}
+          {children}
         </AuthProvider>
       </body>
     </html>
