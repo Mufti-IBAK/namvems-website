@@ -12,8 +12,13 @@ export async function GET(request: Request) {
     
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
+    // Determine if this appears to be a brand new user (in addition to explicit new_user flag)
+    const createdAt = data?.user?.created_at ? new Date(data.user.created_at).getTime() : 0
+    const minutesSinceCreated = createdAt ? (Date.now() - createdAt) / 60000 : Infinity
+    const looksNew = minutesSinceCreated >= 0 && minutesSinceCreated < 10
+
     // If this is a new user signup, send welcome email
-    if (isNewUser && data?.user && !error) {
+    if ((isNewUser || looksNew) && data?.user && !error) {
       try {
         const userMetadata = data.user.user_metadata
         const email = data.user.email

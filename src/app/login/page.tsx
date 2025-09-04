@@ -109,6 +109,10 @@ export default function LoginPage() {
                  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
                     email: formData.email,
                     password: formData.password,
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/auth/callback?new_user=true`,
+                        data: { full_name: formData.fullName }
+                    }
                 });
                 if (signUpError) throw signUpError;
                 if (!signUpData.user) throw new Error("Sign up successful, but no user data returned.");
@@ -131,7 +135,14 @@ export default function LoginPage() {
                 // The useEffect will handle the redirect
             }
         } catch (error: unknown) {
-            setErrors({ form: error instanceof Error ? error.message : 'An error occurred' });
+            const raw = error instanceof Error ? error.message : 'An error occurred';
+            let messageToShow = raw;
+            if (/confirm|verify|email/i.test(raw)) {
+                messageToShow = 'Please verify your email using the link we sent before signing in.';
+            } else if (/invalid login credentials/i.test(raw)) {
+                messageToShow = 'Invalid email or password.';
+            }
+            setErrors({ form: messageToShow });
         } finally {
             setLoading(false);
         }
