@@ -71,19 +71,35 @@ export default async function UserManagementPage({ searchParams }: { searchParam
         );
     }
 
-    const supabaseAdmin = createSupabaseAdminClient();
+    // Ensure server-side admin capability is available
+    createSupabaseAdminClient();
 
-    // Fetch users (consider pagination later)
-    let users: Awaited<ReturnType<typeof supabaseAdmin.auth.admin.listUsers>>['data']['users'] = [];
+    // Fetch users via REST (server-side) to avoid any client/edge pitfalls
+    let users: Array<{ id: string; email?: string; created_at?: string }>; 
     try {
-        const res = await supabaseAdmin.auth.admin.listUsers();
-        users = res.data.users;
+        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/users`;
+        const r = await fetch(`${url}?limit=1000`, {
+            headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY as string,
+                authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            },
+            cache: 'no-store',
+        });
+        if (!r.ok) {
+            const text = await r.text();
+            console.error('REST list users failed:', r.status, text);
+            throw new Error(`REST list users failed: ${r.status}`);
+        }
+        const data = await r.json();
+        type SupabaseAuthUser = { id: string; email?: string; created_at?: string };
+        const raw = (data?.users ?? data ?? []) as SupabaseAuthUser[];
+        users = raw.map((u) => ({ id: u.id, email: u.email, created_at: u.created_at }));
     } catch (e) {
-        console.error('admin.listUsers() failed:', e);
+        console.error('admin list users (REST) failed:', e);
         return (
             <div className="bg-white rounded-xl card-shadow p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load users</h2>
-                <p className="text-gray-700">Please verify the SUPABASE_SERVICE_ROLE_KEY and project URL are correct. Then retry.</p>
+                <p className="text-gray-700">Please verify the SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL are correct. Then retry.</p>
             </div>
         );
     }
