@@ -19,6 +19,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "NAMVEMS - Nigerian Association of Muslim Veterinary Medical Students",
   description: "Official website for NAMVEMS",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
