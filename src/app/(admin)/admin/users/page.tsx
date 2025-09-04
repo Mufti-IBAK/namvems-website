@@ -2,8 +2,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
-import { updateUserRoleAction } from "./actions";
-import { FaUsers } from "react-icons/fa";
+import { updateUserRoleAction, deleteUserAction } from "./actions";
+import { FaUsers, FaSearch, FaTrash, FaSort } from "react-icons/fa";
 import { format } from "date-fns";
 
 function UserRoleForm({ user }: { user: { id: string, email: string | undefined, role: string } }) {
@@ -27,7 +27,7 @@ function UserRoleForm({ user }: { user: { id: string, email: string | undefined,
     );
 }
 
-export default async function UserManagementPage() {
+export default async function UserManagementPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
     const supabase = createClient();
     const supabaseAdmin = createSupabaseAdminClient();
 
@@ -37,6 +37,7 @@ export default async function UserManagementPage() {
         redirect('/admin');
     }
 
+    // Fetch users (consider pagination later)
     const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
     const { data: roles, error: rolesError } = await supabase.from('user_roles').select('user_id, role');
 
@@ -46,10 +47,37 @@ export default async function UserManagementPage() {
     }
     
     const roleMap = new Map(roles?.map(r => [r.user_id, r.role]));
-    const usersWithRoles = users.map(u => ({
+    let usersWithRoles = users.map(u => ({
         ...u,
         role: roleMap.get(u.id) || 'member'
     }));
+
+    // Apply search/filter/sort based on query params
+    const q = (searchParams?.q as string | undefined)?.toLowerCase()?.trim() || '';
+    const roleFilter = (searchParams?.role as string | undefined) || 'all';
+    const sortKey = (searchParams?.sort as string | undefined) || 'created_at';
+    const sortOrder = ((searchParams?.order as string | undefined) || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+
+    if (q) {
+        usersWithRoles = usersWithRoles.filter(u =>
+            (u.email || '').toLowerCase().includes(q)
+        );
+    }
+    if (roleFilter !== 'all') {
+        usersWithRoles = usersWithRoles.filter(u => u.role === roleFilter);
+    }
+    usersWithRoles.sort((a, b) => {
+        let comp = 0;
+        if (sortKey === 'email') {
+            comp = (a.email || '').localeCompare(b.email || '');
+        } else {
+            // default created_at
+            const at = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const bt = b.created_at ? new Date(b.created_at).getTime() : 0;
+            comp = at - bt;
+        }
+        return sortOrder === 'asc' ? comp : -comp;
+    });
 
     return (
         <div className="animate-fade-in">
@@ -59,6 +87,42 @@ export default async function UserManagementPage() {
                 </h1>
                 <p className="text-gray-600 mt-1">Assign roles and manage user access for all members.</p>
             </div>
+            {/* Controls */}
+            <div className="bg-white rounded-xl card-shadow p-4 mb-4">
+                <form method="GET" className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="relative">
+                        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <input
+                            type="text"
+                            name="q"
+                            defaultValue={q}
+                            placeholder="Search by email..."
+                            className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
+                        />
+                    </div>
+                    <select name="role" defaultValue={roleFilter} className="border rounded-lg px-3 py-2">
+                        <option value="all">All roles</option>
+                        <option value="member">Member</option>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                    </select>
+                    <div className="flex gap-2">
+                        <select name="sort" defaultValue={sortKey} className="border rounded-lg px-3 py-2 flex-1">
+                            <option value="created_at">Sort by Joined</option>
+                            <option value="email">Sort by Email</option>
+                        </select>
+                        <select name="order" defaultValue={sortOrder} className="border rounded-lg px-3 py-2">
+                            <option value="desc">Desc</option>
+                            <option value="asc">Asc</option>
+                        </select>
+                    </div>
+                    <div className="flex gap-2">
+                        <button type="submit" className="btn-primary px-4 py-2 flex items-center gap-2"><FaSort /> Apply</button>
+                        <a href="/admin/users" className="px-4 py-2 border rounded-lg">Reset</a>
+                    </div>
+                </form>
+            </div>
+
             <div className="bg-white rounded-xl card-shadow overflow-x-auto">
                 <table className="w-full text-left">
                     <thead className="bg-gray-50 border-b">
@@ -66,6 +130,7 @@ export default async function UserManagementPage() {
                             <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase">User Email</th>
                             <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase">Joined Date</th>
                             <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Manage Role</th>
+                            <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -73,12 +138,26 @@ export default async function UserManagementPage() {
                             <tr key={u.id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <p className="font-medium text-gray-900">{u.email}</p>
+                                    <p className="text-xs text-gray-500">{u.role}</p>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                                     {u.created_at ? format(new Date(u.created_at), 'PPP') : 'N/A'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <UserRoleForm user={{ id: u.id, email: u.email, role: u.role }} />
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <form action={deleteUserAction}>
+                                        <input type="hidden" name="userId" value={u.id} />
+                                        <button
+                                            type="submit"
+                                            className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
+                                            onClick={(e) => { if (!confirm(`Delete ${u.email}? This cannot be undone.`)) { e.preventDefault(); } }}
+                                            title="Delete user"
+                                        >
+                                            <FaTrash /> Delete
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         ))}

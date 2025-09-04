@@ -2,6 +2,7 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { User } from "@supabase/supabase-js";
 
@@ -72,4 +73,35 @@ export async function updateUserRoleAction(formData: FormData) {
         }
         // In a real app, you might use a more advanced error handling system to report this.
     }
+}
+
+// --- Delete User ---
+export async function deleteUserAction(formData: FormData) {
+  const supabase = createClient();
+  const supabaseAdmin = createSupabaseAdminClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Verify caller is super_admin
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+  if (roleData?.role !== 'super_admin') return;
+
+  const targetUserId = formData.get('userId') as string;
+  if (!targetUserId) return;
+  // Prevent self-deletion
+  if (targetUserId === user.id) return;
+
+  // Best effort: delete dependent rows first (in case FKs are not cascading)
+  await supabase.from('user_roles').delete().eq('user_id', targetUserId);
+  await supabase.from('profiles').delete().eq('id', targetUserId);
+
+  // Delete auth user (requires service role)
+  await supabaseAdmin.auth.admin.deleteUser(targetUserId);
+
+  revalidatePath('/admin/users');
 }

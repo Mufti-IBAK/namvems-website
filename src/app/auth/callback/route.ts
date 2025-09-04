@@ -12,6 +12,35 @@ export async function GET(request: Request) {
     
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     
+    // Ensure profile and role exist for this user (idempotent)
+    if (data?.user && !error) {
+      const userId = data.user.id
+      const md = data.user.user_metadata as Record<string, string | undefined>
+      const fullName = md?.full_name || md?.name || null
+      const university = (md?.university as string | undefined) || null
+      const level = (md?.level as string | undefined) || null
+
+      // Upsert profile
+      await supabase
+        .from('profiles')
+        .upsert(
+          { id: userId, full_name: fullName, university, level_of_study: level },
+          { onConflict: 'id' }
+        )
+
+      // Upsert role as member if not present
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (!existingRole) {
+        await supabase
+          .from('user_roles')
+          .upsert({ user_id: userId, role: 'member' }, { onConflict: 'user_id' })
+      }
+    }
+
     // Determine if this appears to be a brand new user (in addition to explicit new_user flag)
     const createdAt = data?.user?.created_at ? new Date(data.user.created_at).getTime() : 0
     const minutesSinceCreated = createdAt ? (Date.now() - createdAt) / 60000 : Infinity

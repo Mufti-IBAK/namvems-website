@@ -106,23 +106,17 @@ export default function LoginPage() {
 
         try {
             if (isSignUp) {
-                 const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                 const { error: signUpError } = await supabase.auth.signUp({
                     email: formData.email,
                     password: formData.password,
                     options: {
                         emailRedirectTo: `${window.location.origin}/auth/callback?new_user=true`,
-                        data: { full_name: formData.fullName }
+                        data: { full_name: formData.fullName, university: formData.university, level: formData.level }
                     }
                 });
                 if (signUpError) throw signUpError;
-                if (!signUpData.user) throw new Error("Sign up successful, but no user data returned.");
-                const { error: profileError } = await supabase.from('profiles').insert({
-                    id: signUpData.user.id,
-                    full_name: formData.fullName,
-                    university: formData.university,
-                    level_of_study: formData.level,
-                });
-                if (profileError) throw profileError;
+                // Note: When email confirmations are enabled, signUpData.user can be null. That's expected.
+                // We'll create the profile after email verification in /auth/callback.
                 setMessage('Success! Please check your email to confirm your account, then sign in below.');
                 setIsSignUp(false);
                 setFormData(prev => ({ ...prev, password: '', fullName: '', university: '', level: '' }));
