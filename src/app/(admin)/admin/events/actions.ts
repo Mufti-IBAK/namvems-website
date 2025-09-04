@@ -31,7 +31,7 @@ const EventSchema = z.object({
     registration_deadline: z.string().optional(),
 });
 
-export async function upsertEvent(prevState: ActionState, formData: FormData): Promise<ActionState> {
+export async function upsertEvent(_prevState: ActionState, formData: FormData): Promise<ActionState> {
     console.log("--- [SERVER-SIDE] upsertEvent Action Started ---");
     
     console.log("Received FormData entries:");

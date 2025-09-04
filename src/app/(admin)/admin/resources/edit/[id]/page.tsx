@@ -12,8 +12,9 @@ async function getResourceById(id: number) {
     return data;
 }
 
-export default async function EditResourcePage({ params }: { params: { id: string } }) {
-    const resourceId = Number(params.id);
+export default async function EditResourcePage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const resourceId = Number(id);
     if (isNaN(resourceId)) notFound();
     
     const resource = await getResourceById(resourceId);

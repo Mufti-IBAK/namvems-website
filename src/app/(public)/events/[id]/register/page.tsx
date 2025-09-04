@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import EventRegistrationForm from '@/components/forms/EventRegistrationForm';
@@ -21,7 +21,7 @@ export default function EventRegistrationPage() {
 
   const eventId = params?.id ? parseInt(params.id as string) : null;
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error: fetchError } = await supabase
@@ -80,7 +80,7 @@ export default function EventRegistrationPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId, supabase]);
 
   useEffect(() => {
     if (!eventId) {

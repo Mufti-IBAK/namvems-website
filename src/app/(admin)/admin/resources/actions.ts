@@ -41,7 +41,7 @@ const ResourceSchema = z.object({
         ).optional(),
 });
 
-export async function upsertResource(prevState: ActionState, formData: FormData): Promise<ActionState> {
+export async function upsertResource(_prevState: ActionState, formData: FormData): Promise<ActionState> {
     const supabase = createClient();
     const supabaseAdmin = createSupabaseAdminClient();
 

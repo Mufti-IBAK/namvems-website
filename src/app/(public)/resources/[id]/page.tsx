@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { resourcesService } from '@/lib/services/resourcesService'
 import { Resource } from '@/lib/types/resource'
@@ -18,7 +18,7 @@ export default function ResourceDetailPage() {
   const router = useRouter()
   const resourceId = params.id as string
 
-  const fetchResource = async () => {
+  const fetchResource = useCallback(async () => {
     try {
       setLoading(true)
       const resourceData = await resourcesService.getResourceById(resourceId)
@@ -38,7 +38,7 @@ export default function ResourceDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [resourceId])
 
   useEffect(() => {
     if (resourceId) {

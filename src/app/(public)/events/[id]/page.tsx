@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { eventsService } from '@/lib/services/eventsService'
 import { Event } from '@/lib/types/event'
@@ -18,7 +18,7 @@ export default function EventDetailPage() {
   const router = useRouter()
   const eventId = params.id as string
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       setLoading(true)
       const eventData = await eventsService.getEventById(eventId)
@@ -33,7 +33,7 @@ export default function EventDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [eventId])
 
   useEffect(() => {
     if (eventId) {

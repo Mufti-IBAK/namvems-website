@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/AuthContext'
 import { Event, EventRegistration } from '@/lib/types'
@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import BulkEmailModal from '@/components/modals/BulkEmailModal'
 
 export default function RegistrationsManagementPage() {
-  const { user: _user, userRole: _userRole } = useAuth()
+  const { user, userRole } = useAuth()
   const supabase = createClient()
   
   const [events, setEvents] = useState<Event[]>([])
@@ -25,7 +25,7 @@ export default function RegistrationsManagementPage() {
   const [showEmailModal, setShowEmailModal] = useState(false)
 
   // Load events
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('events')
@@ -40,11 +40,11 @@ export default function RegistrationsManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   useEffect(() => {
     fetchEvents()
-  }, [])
+  }, [fetchEvents])
 
   // Filter registrations based on search and status
   useEffect(() => {
@@ -64,10 +64,6 @@ export default function RegistrationsManagementPage() {
 
     setFilteredRegistrations(filtered)
   }, [registrations, searchTerm, filterStatus])
-
-  useEffect(() => {
-    fetchEvents()
-  }, [])
 
   const fetchRegistrations = async (eventId: number) => {
     setLoadingRegistrations(true)
