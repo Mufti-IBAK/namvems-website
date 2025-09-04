@@ -77,11 +77,13 @@ export default async function UserManagementPage({ searchParams }: { searchParam
     // Fetch users via REST (server-side) to avoid any client/edge pitfalls
     let users: Array<{ id: string; email?: string; created_at?: string }>; 
     try {
-        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/users`;
-        const r = await fetch(`${url}?limit=1000`, {
+        const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/users`;
+        const url = `${base}?per_page=1000&page=1`;
+        const r = await fetch(url, {
             headers: {
                 apikey: process.env.SUPABASE_SERVICE_ROLE_KEY as string,
                 authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                accept: 'application/json',
             },
             cache: 'no-store',
         });
