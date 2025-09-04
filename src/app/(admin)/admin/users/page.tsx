@@ -93,7 +93,11 @@ export default async function UserManagementPage({ searchParams }: { searchParam
         const data = await r.json();
         type SupabaseAuthUser = { id: string; email?: string; created_at?: string };
         const raw = (data?.users ?? data ?? []) as SupabaseAuthUser[];
-        users = raw.map((u) => ({ id: u.id, email: u.email, created_at: u.created_at }));
+        users = raw.map((u) => ({
+          id: u.id,
+          ...(u.email ? { email: u.email } : {}),
+          ...(u.created_at ? { created_at: u.created_at } : {}),
+        }));
     } catch (e) {
         console.error('admin list users (REST) failed:', e);
         return (
