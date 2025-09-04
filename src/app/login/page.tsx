@@ -67,7 +67,7 @@ const PasswordInput = ({ label, id, name, value, onChange, error }: Omit<FormInp
 export default function LoginPage() {
     const [isSignUp, setIsSignUp] = useState(false);
     const [formData, setFormData] = useState({ email: '', password: '', fullName: '', university: '', level: '' });
-    const [errors, setErrors] = useState<any>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [message, setMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const { supabase, user, userRole } = useAuth();
@@ -94,7 +94,7 @@ export default function LoginPage() {
         const result = schema.safeParse(formData);
 
         if (!result.success) {
-            const fieldErrors: any = {};
+            const fieldErrors: Record<string, string> = {};
             result.error.issues.forEach((issue: ZodIssue) => { fieldErrors[issue.path[0]] = issue.message; });
             setErrors(fieldErrors);
             return;
@@ -128,8 +128,8 @@ export default function LoginPage() {
                 if (error) throw error;
                 // The useEffect will handle the redirect
             }
-        } catch (error: any) {
-            setErrors({ form: error.message });
+        } catch (error: unknown) {
+            setErrors({ form: error instanceof Error ? error.message : 'An error occurred' });
         } finally {
             setLoading(false);
         }

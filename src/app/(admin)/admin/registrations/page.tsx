@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 import BulkEmailModal from '@/components/modals/BulkEmailModal'
 
 export default function RegistrationsManagementPage() {
-  const { user, userRole } = useAuth()
+  useAuth() // Authentication check
   const supabase = createClient()
   
   const [events, setEvents] = useState<Event[]>([])

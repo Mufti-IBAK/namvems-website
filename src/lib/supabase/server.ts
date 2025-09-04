@@ -19,6 +19,7 @@ export const createClient = () => {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           }
         },
         remove(name: string, options: CookieOptions) {
@@ -28,6 +29,7 @@ export const createClient = () => {
             // The `remove` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           }
         },
       },
