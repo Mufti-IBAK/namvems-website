@@ -1,7 +1,6 @@
 // src/app/(admin)/admin/users/page.tsx
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { redirect } from "next/navigation";
 import { updateUserRoleAction, deleteUserAction } from "./actions";
 import { FaUsers, FaSearch, FaTrash, FaSort } from "react-icons/fa";
 import { format } from "date-fns";
@@ -31,11 +30,18 @@ function UserRoleForm({ user }: { user: { id: string, email: string | undefined,
 }
 
 export default async function UserManagementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  try {
     const supabase = createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        redirect('/login');
+        return (
+            <div className="bg-white rounded-xl card-shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Sign in required</h2>
+                <p className="text-gray-700 mb-4">You must be signed in to view the User Management page.</p>
+                <a href="/login" className="btn-primary inline-block px-4 py-2">Go to Login</a>
+            </div>
+        );
     }
     const { data: roleData } = await supabase
         .from('user_roles')
@@ -43,7 +49,12 @@ export default async function UserManagementPage({ searchParams }: { searchParam
         .eq('user_id', user.id)
         .maybeSingle();
     if (roleData?.role !== 'super_admin') {
-        redirect('/admin');
+        return (
+            <div className="bg-white rounded-xl card-shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Access denied</h2>
+                <p className="text-gray-700">This page is restricted to super administrators.</p>
+            </div>
+        );
     }
 
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -208,4 +219,13 @@ export default async function UserManagementPage({ searchParams }: { searchParam
             </div>
         </div>
     );
+  } catch (err) {
+    console.error('Admin Users page error:', err);
+    return (
+      <div className="bg-white rounded-xl card-shadow p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Application error</h2>
+        <p className="text-gray-700">An unexpected error occurred while loading the User Management page. Please try again, and check server logs if the issue persists.</p>
+      </div>
+    );
+  }
 }
