@@ -4,9 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { eventsService } from '@/lib/services/eventsService'
 import { Event } from '@/lib/types/event'
-import PrimaryButton from '@/components/buttons/PrimaryButton'
-import SecondaryButton from '@/components/buttons/SecondaryButton'
-import { FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaArrowLeft } from 'react-icons/fa'
+import { FaCalendarAlt, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa'
+import Image from 'next/image'
 import { format } from 'date-fns'
 
 export default function EventDetailPage() {
@@ -18,12 +17,6 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const eventId = params.id as string
-
-  useEffect(() => {
-    if (eventId) {
-      fetchEvent()
-    }
-  }, [eventId])
 
   const fetchEvent = async () => {
     try {
@@ -41,6 +34,13 @@ export default function EventDetailPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent()
+    }
+  }, [eventId, fetchEvent])
+
 
   const handleRegister = async () => {
     if (!event) return
@@ -117,10 +117,11 @@ export default function EventDetailPage() {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {event.imageUrl && (
           <div className="h-80 relative">
-            <img 
+            <Image 
               src={event.imageUrl} 
               alt={event.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
             <div className="absolute bottom-6 left-6 text-white">

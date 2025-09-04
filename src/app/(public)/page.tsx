@@ -3,11 +3,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Event, Resource } from '@/lib/types';
-import PrimaryButton from "@/components/buttons/PrimaryButton";
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import EventCard from "@/components/cards/EventCard";
 import ResourceCard from "@/components/cards/ResourceCard";
-import ParallaxSection from "@/components/ParallaxSection";
 import { ONLINE_IMAGES } from "@/lib/constants/images";
 import { FaTelegram, FaUsers, FaCalendarAlt, FaBook, FaUniversity, FaArrowDown } from "react-icons/fa";
 import Link from "next/link";
@@ -103,7 +101,7 @@ export default function Home() {
 			);
 		
 			// Section fade-in animations
-			gsap.utils.toArray('.fade-section').forEach((section: any) => {
+			gsap.utils.toArray('.fade-section').forEach((section: HTMLElement) => {
 				gsap.fromTo(section,
 					{ opacity: 0, y: 40 },
 					{
@@ -121,7 +119,7 @@ export default function Home() {
 			});
 		
 			// Card stagger animations
-			gsap.utils.toArray('.card-container').forEach((container: any) => {
+			gsap.utils.toArray('.card-container').forEach((container: HTMLElement) => {
 				const cards = container.querySelectorAll('.stagger-card');
 				gsap.fromTo(cards,
 					{ opacity: 0, y: 30, scale: 0.9 },
@@ -143,7 +141,7 @@ export default function Home() {
 		}
 	}, [fetchData]);
 
-	const handleRegister = () => console.log("Register button clicked");
+	// const handleRegister = () => console.log("Register button clicked");
 	const handleDownload = () => console.log("Download button clicked");
 
 	return (
@@ -308,7 +306,7 @@ export default function Home() {
 						</div>
 					) : latestEvents.length > 0 ? (
 						<div className="card-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-						{latestEvents.map((event, index) => {
+						{latestEvents.map((event) => {
 							// Check if event has passed
 							const eventDate = new Date(event.date);
 							const isPassed = eventDate < new Date();
@@ -362,7 +360,7 @@ export default function Home() {
 								<span className="ml-4 text-gray-600 text-lg">Loading resources...</span>
 							</div>
 						) : latestResources.length > 0 ? (
-							latestResources.map((resource, index) => (
+							latestResources.map((resource) => (
 								<div key={resource.id} className="stagger-card">
 									<ResourceCard 
 										title={resource.title}

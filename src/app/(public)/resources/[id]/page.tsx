@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { resourcesService } from '@/lib/services/resourcesService'
 import { Resource } from '@/lib/types/resource'
-import PrimaryButton from '@/components/buttons/PrimaryButton'
+import Image from 'next/image'
 import { FaArrowLeft, FaDownload, FaEye, FaFileDownload } from 'react-icons/fa'
 import { format } from 'date-fns'
 
@@ -17,12 +17,6 @@ export default function ResourceDetailPage() {
   const params = useParams()
   const router = useRouter()
   const resourceId = params.id as string
-
-  useEffect(() => {
-    if (resourceId) {
-      fetchResource()
-    }
-  }, [resourceId])
 
   const fetchResource = async () => {
     try {
@@ -45,6 +39,13 @@ export default function ResourceDetailPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (resourceId) {
+      fetchResource()
+    }
+  }, [resourceId, fetchResource])
+
 
   const handleDownload = async () => {
     if (!resource) return
@@ -139,10 +140,11 @@ export default function ResourceDetailPage() {
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {resource.thumbnailUrl && (
           <div className="h-80 relative">
-            <img 
+            <Image 
               src={resource.thumbnailUrl} 
               alt={resource.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
             <div className="absolute bottom-6 left-6 text-white">

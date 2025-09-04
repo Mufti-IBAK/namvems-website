@@ -21,16 +21,6 @@ export default function EventRegistrationPage() {
 
   const eventId = params?.id ? parseInt(params.id as string) : null;
 
-  useEffect(() => {
-    if (!eventId) {
-      setError('Invalid event ID');
-      setLoading(false);
-      return;
-    }
-
-    fetchEvent();
-  }, [eventId]);
-
   const fetchEvent = async () => {
     try {
       setLoading(true);
@@ -91,6 +81,17 @@ export default function EventRegistrationPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!eventId) {
+      setError('Invalid event ID');
+      setLoading(false);
+      return;
+    }
+
+    fetchEvent();
+  }, [eventId, fetchEvent]);
+
 
   const handleRegistrationSuccess = () => {
     setRegistrationComplete(true);

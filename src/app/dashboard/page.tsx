@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import PrimaryButton from '@/components/buttons/PrimaryButton'
+import Link from 'next/link'
 import { FaUser, FaCalendar, FaBook, FaSignOutAlt } from 'react-icons/fa'
 
 export default function DashboardPage() {
@@ -80,9 +81,9 @@ export default function DashboardPage() {
               </div>
               <div className="bg-gray-50 px-4 py-4 sm:px-6">
                 <div className="text-sm">
-                  <a href="/events" className="font-medium text-accent hover:text-opacity-80">
+                  <Link href="/events" className="font-medium text-accent hover:text-opacity-80">
                     View all events
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -105,9 +106,9 @@ export default function DashboardPage() {
               </div>
               <div className="bg-gray-50 px-4 py-4 sm:px-6">
                 <div className="text-sm">
-                  <a href="/resources" className="font-medium text-accent hover:text-opacity-80">
+                  <Link href="/resources" className="font-medium text-accent hover:text-opacity-80">
                     Browse resources
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

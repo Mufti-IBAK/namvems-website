@@ -25,7 +25,7 @@ interface BulkEmailRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: BulkEmailRequest = await request.json()
-    const { type, eventId, eventTitle, subject, message, recipients } = body
+    const { type, eventTitle, subject, message, recipients } = body
 
     if (!recipients || recipients.length === 0) {
       return NextResponse.json(

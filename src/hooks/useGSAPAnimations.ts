@@ -13,7 +13,7 @@ export const useGSAPAnimations = () => {
 
     // Parallax effect for hero section
     const parallaxElements = document.querySelectorAll('.parallax-element');
-    parallaxElements.forEach((element: any) => {
+    parallaxElements.forEach((element: HTMLElement) => {
       gsap.to(element, {
         y: () => -0.5 * element.offsetHeight,
         ease: 'none',
@@ -41,7 +41,7 @@ export const useGSAPAnimations = () => {
     );
 
     // Scroll-triggered animations
-    gsap.utils.toArray('.fade-in-up').forEach((element: any) => {
+    gsap.utils.toArray('.fade-in-up').forEach((element: HTMLElement) => {
       gsap.fromTo(element,
         { opacity: 0, y: 40 },
         {
@@ -59,7 +59,7 @@ export const useGSAPAnimations = () => {
     });
 
     // Stagger animations
-    gsap.utils.toArray('.stagger-container').forEach((container: any) => {
+    gsap.utils.toArray('.stagger-container').forEach((container: HTMLElement) => {
       const elements = container.querySelectorAll('.stagger-item');
       gsap.fromTo(elements,
         { opacity: 0, y: 30, scale: 0.9 },

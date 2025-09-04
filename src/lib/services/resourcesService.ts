@@ -2,7 +2,7 @@ import { Resource } from '../types/index';
 
 // WARNING: This service uses mock data - replace with real Supabase queries for production
 // TODO: Remove mock data and implement actual database queries
-const mockResources: any[] = [
+const mockResources: Resource[] = [
   {
     id: '1',
     title: 'Student Handbook 2024',

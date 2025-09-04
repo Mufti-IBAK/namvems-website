@@ -24,7 +24,7 @@ export default function ResourceForm({ resource }: { resource?: Resource | null 
     const [state, formAction] = useActionState(upsertResource, initialState);
     
     const [fileName, setFileName] = useState<string | null>(null);
-    const [isUploading, setIsUploading] = useState(false); // MOBILE FIX: Track upload state
+    // const [isUploading, setIsUploading] = useState(false); // MOBILE FIX: Track upload state
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

@@ -2,7 +2,7 @@ import { Event } from '../types/index';
 
 // WARNING: This service uses mock data - replace with real Supabase queries for production
 // TODO: Remove mock data and implement actual database queries
-const mockEvents: any[] = [
+const mockEvents: Event[] = [
   {
     id: '1',
     title: 'Annual Conference 2024',

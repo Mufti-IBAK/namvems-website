@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/AuthContext'
 import { Event, EventRegistration } from '@/lib/types'
-import { FaUsers, FaEnvelope, FaTrash, FaDownload, FaCalendarAlt, FaSearch, FaFilter, FaSpinner } from 'react-icons/fa'
+import { FaUsers, FaEnvelope, FaTrash, FaDownload, FaCalendarAlt, FaSearch, FaSpinner } from 'react-icons/fa'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import BulkEmailModal from '@/components/modals/BulkEmailModal'
 
 export default function RegistrationsManagementPage() {
-  const { user, userRole } = useAuth()
+  const { user: _user, userRole: _userRole } = useAuth()
   const supabase = createClient()
   
   const [events, setEvents] = useState<Event[]>([])
@@ -25,6 +25,23 @@ export default function RegistrationsManagementPage() {
   const [showEmailModal, setShowEmailModal] = useState(false)
 
   // Load events
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: false })
+
+      if (error) throw error
+      setEvents(data || [])
+    } catch (error) {
+      console.error('Error fetching events:', error)
+      toast.error('Failed to load events')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchEvents()
   }, [])
@@ -48,22 +65,9 @@ export default function RegistrationsManagementPage() {
     setFilteredRegistrations(filtered)
   }, [registrations, searchTerm, filterStatus])
 
-  const fetchEvents = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('date', { ascending: false })
-
-      if (error) throw error
-      setEvents(data || [])
-    } catch (error) {
-      console.error('Error fetching events:', error)
-      toast.error('Failed to load events')
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+    fetchEvents()
+  }, [])
 
   const fetchRegistrations = async (eventId: number) => {
     setLoadingRegistrations(true)
@@ -233,7 +237,7 @@ export default function RegistrationsManagementPage() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 gap-4">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  Registrations for "{selectedEvent.title}"
+                  Registrations for &quot;{selectedEvent.title}&quot;
                 </h2>
                 <p className="text-gray-600">
                   {filteredRegistrations.length} of {registrations.length} registrations

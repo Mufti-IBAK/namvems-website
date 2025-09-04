@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import PrimaryButton from '@/components/buttons/PrimaryButton'
 import SecondaryButton from '@/components/buttons/SecondaryButton'
