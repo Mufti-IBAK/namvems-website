@@ -6,6 +6,9 @@ import { updateUserRoleAction, deleteUserAction } from "./actions";
 import { FaUsers, FaSearch, FaTrash, FaSort } from "react-icons/fa";
 import { format } from "date-fns";
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 function UserRoleForm({ user }: { user: { id: string, email: string | undefined, role: string } }) {
     return (
         <form action={updateUserRoleAction} className="flex items-center gap-2">
@@ -31,7 +34,14 @@ export default async function UserManagementPage({ searchParams }: { searchParam
     const supabase = createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
-    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user?.id || '').single();
+    if (!user) {
+        redirect('/login');
+    }
+    const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
     if (roleData?.role !== 'super_admin') {
         redirect('/admin');
     }
@@ -53,12 +63,25 @@ export default async function UserManagementPage({ searchParams }: { searchParam
     const supabaseAdmin = createSupabaseAdminClient();
 
     // Fetch users (consider pagination later)
-    const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
+    let users: Awaited<ReturnType<typeof supabaseAdmin.auth.admin.listUsers>>['data']['users'] = [];
+    try {
+        const res = await supabaseAdmin.auth.admin.listUsers();
+        users = res.data.users;
+    } catch (e) {
+        console.error('admin.listUsers() failed:', e);
+        return (
+            <div className="bg-white rounded-xl card-shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to load users</h2>
+                <p className="text-gray-700">Please verify the SUPABASE_SERVICE_ROLE_KEY and project URL are correct. Then retry.</p>
+            </div>
+        );
+    }
+
     const { data: roles, error: rolesError } = await supabase.from('user_roles').select('user_id, role');
 
-    if (usersError || rolesError) {
-        console.error("User Management Fetching Errors:", { usersError, rolesError });
-        return <p className="text-red-500">Error fetching user data. Please check the server logs.</p>;
+    if (rolesError) {
+        console.error("User roles fetch error:", rolesError);
+        return <p className="text-red-500">Error fetching user roles. Please check the server logs.</p>;
     }
     
     const roleMap = new Map(roles?.map(r => [r.user_id, r.role]));
