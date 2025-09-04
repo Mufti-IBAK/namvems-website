@@ -4,7 +4,7 @@ import { Resend } from 'resend'
 
 export async function POST(request: NextRequest) {
   try {
-    const { to, fromFormat, testType } = await request.json()
+    const { to, fromFormat, testType } = (await request.json()) as { to?: string; fromFormat?: string; testType?: 'simple' | 'complex' }
     
     const apiKey = process.env.RESEND_API_KEY
     if (!apiKey) {
@@ -22,9 +22,13 @@ export async function POST(request: NextRequest) {
       'namvems-onboarding': 'NAMVEMS <onboarding@resend.dev>',
       'namvems-api': 'NAMVEMS@resend.dev',
       'namvems-api-named': 'NAMVEMS <NAMVEMS@resend.dev>'
-    }
+    } as const
 
-    const fromAddress = fromOptions[fromFormat] || 'onboarding@resend.dev'
+    const validFromFormats = Object.keys(fromOptions) as Array<keyof typeof fromOptions>
+    const isValidFromFormat = (val: unknown): val is keyof typeof fromOptions =>
+      typeof val === 'string' && (validFromFormats as string[]).includes(val)
+    const fromKey: keyof typeof fromOptions = isValidFromFormat(fromFormat) ? fromFormat : 'onboarding'
+    const fromAddress = fromOptions[fromKey]
 
     // Simple vs Complex email content
     const simpleEmail = {

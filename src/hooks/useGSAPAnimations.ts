@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import gsap from 'gsap';
+import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Register GSAP plugins
@@ -12,8 +12,8 @@ export const useGSAPAnimations = () => {
     if (typeof window === 'undefined') return;
 
     // Parallax effect for hero section
-    const parallaxElements = document.querySelectorAll('.parallax-element');
-    parallaxElements.forEach((element: HTMLElement) => {
+    const parallaxElements = document.querySelectorAll<HTMLElement>('.parallax-element');
+    parallaxElements.forEach((element) => {
       gsap.to(element, {
         y: () => -0.5 * element.offsetHeight,
         ease: 'none',
@@ -41,7 +41,7 @@ export const useGSAPAnimations = () => {
     );
 
     // Scroll-triggered animations
-    gsap.utils.toArray('.fade-in-up').forEach((element: HTMLElement) => {
+    (gsap.utils.toArray('.fade-in-up') as HTMLElement[]).forEach((element) => {
       gsap.fromTo(element,
         { opacity: 0, y: 40 },
         {
@@ -59,7 +59,7 @@ export const useGSAPAnimations = () => {
     });
 
     // Stagger animations
-    gsap.utils.toArray('.stagger-container').forEach((container: HTMLElement) => {
+    (gsap.utils.toArray('.stagger-container') as HTMLElement[]).forEach((container) => {
       const elements = container.querySelectorAll('.stagger-item');
       gsap.fromTo(elements,
         { opacity: 0, y: 30, scale: 0.9 },

@@ -1,4 +1,4 @@
-import { Event } from '../types/index';
+import { Event } from '../types/event';
 
 // WARNING: This service uses mock data - replace with real Supabase queries for production
 // TODO: Remove mock data and implement actual database queries
@@ -15,7 +15,10 @@ const mockEvents: Event[] = [
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    registrationLink: '#',
+    registration_link: '#',
+
+
+
     imageUrl: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
   },
   {
@@ -30,7 +33,9 @@ const mockEvents: Event[] = [
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    registrationLink: '#',
+    registration_link: '#',
+
+
     imageUrl: 'https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
   },
   {
@@ -45,7 +50,8 @@ const mockEvents: Event[] = [
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    registrationLink: '#',
+    registration_link: '#',
+
     imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
   },
   {
@@ -60,7 +66,7 @@ const mockEvents: Event[] = [
     isActive: true,
     createdAt: new Date(),
     updatedAt: new Date(),
-    registrationLink: '#',
+    registration_link: '#',
     imageUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
   }
 ];
@@ -81,8 +87,8 @@ export const eventsService = {
     const events = await eventsService.getAllEvents();
     const now = new Date();
     return events
-      .filter(event => event.date > now && event.isActive)
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
+      .filter(event => new Date(event.date).getTime() > now.getTime() && (event.isActive ?? true))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   },
 
   // Get event by ID

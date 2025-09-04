@@ -383,18 +383,20 @@ export default function RegistrationsManagementPage() {
         )}
         
         {/* Bulk Email Modal */}
-        <BulkEmailModal
-          isOpen={showEmailModal}
-          onClose={() => setShowEmailModal(false)}
-          recipients={registrations
-            .filter(reg => selectedRegistrations.includes(reg.id))
-            .map(reg => ({
-              email: reg.email,
-              name: reg.full_name
-            }))}
-          eventTitle={selectedEvent?.title}
-          eventId={selectedEvent?.id}
-        />
+        {selectedEvent && (
+          <BulkEmailModal
+            isOpen={showEmailModal}
+            onClose={() => setShowEmailModal(false)}
+            recipients={registrations
+              .filter(reg => selectedRegistrations.includes(reg.id))
+              .map(reg => ({
+                email: reg.email,
+                name: reg.full_name
+              }))}
+            eventTitle={selectedEvent.title}
+            eventId={selectedEvent.id}
+          />
+        )}
       </div>
     </div>
   )

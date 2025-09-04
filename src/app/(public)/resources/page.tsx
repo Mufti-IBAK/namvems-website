@@ -139,7 +139,7 @@ export default function ResourcesPage() {
               title={resource.title}
               type={resource.type}
               description={resource.description}
-              fileSize={resource.fileSize}
+              {...(resource.fileSize ? { fileSize: resource.fileSize } : {})}
               downloadUrl={resource.downloadUrl}
               onDownload={() => console.log('Download initiated')}
             />

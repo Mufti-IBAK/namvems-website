@@ -1,5 +1,5 @@
 export interface Event {
-  id?: number;
+  id: string;
   title: string;
   description: string;
   date: Date | string;
@@ -8,7 +8,9 @@ export interface Event {
   maxAttendees: number;
   registeredCount: number;
   imageUrl?: string | null;
-  // --- FIX: Add the new properties here ---
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
   registration_type?: 'google_form' | 'internal_form' | 'none';
   registration_link?: string | null;
 }

@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { resourcesService } from '@/lib/services/resourcesService'
-import { Resource } from '@/lib/types/resource'
+import { Resource as UiResource } from '@/lib/types/resource'
 import Image from 'next/image'
 import { FaArrowLeft, FaDownload, FaEye, FaFileDownload } from 'react-icons/fa'
 import { format } from 'date-fns'
 
 export default function ResourceDetailPage() {
-  const [resource, setResource] = useState<Resource | null>(null)
+  const [resource, setResource] = useState<UiResource | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)

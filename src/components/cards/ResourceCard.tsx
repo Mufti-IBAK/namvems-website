@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import React from 'react';
-import { FaDownload, FaFilePdf, FaBook, FaVideo, FaImage, FaFlask } from 'react-icons/fa'; // Added FaFlask for research
+import { FaDownload } from 'react-icons/fa';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 

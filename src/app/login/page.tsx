@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -95,7 +94,10 @@ export default function LoginPage() {
 
         if (!result.success) {
             const fieldErrors: Record<string, string> = {};
-            result.error.issues.forEach((issue: ZodIssue) => { fieldErrors[issue.path[0]] = issue.message; });
+            result.error.issues.forEach((issue: ZodIssue) => {
+                const key = typeof issue.path[0] === 'string' ? issue.path[0] : undefined;
+                if (key) fieldErrors[key] = issue.message;
+            });
             setErrors(fieldErrors);
             return;
         }
@@ -161,13 +163,13 @@ export default function LoginPage() {
                     <form className="space-y-6" onSubmit={handleSubmit} noValidate>
                         {isSignUp && (
                             <>
-                                <FormInput label="Full Name" id="fullName" name="fullName" type="text" value={formData.fullName} onChange={handleChange} error={errors.fullName} />
-                                <FormInput label="University" id="university" name="university" type="text" value={formData.university} onChange={handleChange} error={errors.university} />
-                                <FormInput label="Level of Study" id="level" name="level" type="text" placeholder="e.g., 200L" value={formData.level} onChange={handleChange} error={errors.level} />
+                                <FormInput label="Full Name" id="fullName" name="fullName" type="text" value={formData.fullName} onChange={handleChange} {...(errors.fullName ? { error: errors.fullName } : {})} />
+                                <FormInput label="University" id="university" name="university" type="text" value={formData.university} onChange={handleChange} {...(errors.university ? { error: errors.university } : {})} />
+                                <FormInput label="Level of Study" id="level" name="level" type="text" placeholder="e.g., 200L" value={formData.level} onChange={handleChange} {...(errors.level ? { error: errors.level } : {})} />
                             </>
                         )}
-                        <FormInput label="Email Address" id="email" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} />
-                        <PasswordInput label="Password" id="password" name="password" value={formData.password} onChange={handleChange} error={errors.password} />
+                        <FormInput label="Email Address" id="email" name="email" type="email" value={formData.email} onChange={handleChange} {...(errors.email ? { error: errors.email } : {})} />
+                        <PasswordInput label="Password" id="password" name="password" value={formData.password} onChange={handleChange} {...(errors.password ? { error: errors.password } : {})} />
                         <div>
                             <button type="submit" disabled={loading} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-primary hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-colors">
                                 {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}

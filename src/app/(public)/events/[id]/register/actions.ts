@@ -28,7 +28,7 @@ const RegistrationSchema = z.object({
     additional_info: z.string().optional(),
 });
 
-export async function registerForEvent(prevState: RegistrationActionState, formData: FormData): Promise<RegistrationActionState> {
+export async function registerForEvent(_prevState: RegistrationActionState, formData: FormData): Promise<RegistrationActionState> {
     console.log("--- [SERVER-SIDE] registerForEvent Action Started ---");
     
     // Log all form data for debugging
@@ -164,8 +164,8 @@ export async function registerForEvent(prevState: RegistrationActionState, formD
         } catch (emailError) {
             console.error("Failed to send registration confirmation email:");
             console.error("Email error details:", emailError);
-            console.error("Email error message:", emailError?.message);
-            console.error("Full error object:", JSON.stringify(emailError, null, 2));
+            const msg = emailError instanceof Error ? emailError.message : undefined;
+            console.error("Email error message:", msg);
             // Don't fail the registration if email fails
         }
 

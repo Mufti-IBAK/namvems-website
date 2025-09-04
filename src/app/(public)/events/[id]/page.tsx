@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { eventsService } from '@/lib/services/eventsService'
-import { Event } from '@/lib/types/event'
+import { Event as UiEvent } from '@/lib/types/event'
 import { FaCalendarAlt, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa'
 import Image from 'next/image'
 import { format } from 'date-fns'
 
 export default function EventDetailPage() {
-  const [event, setEvent] = useState<Event | null>(null)
+  const [event, setEvent] = useState<UiEvent | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isRegistering, setIsRegistering] = useState(false)

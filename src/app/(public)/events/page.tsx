@@ -16,8 +16,9 @@ type DatabaseEvent = {
   image_url: string | null;
   max_attendees: number | null;
   created_at: string | null;
-  registration_type: 'none' | 'google_form' | 'internal_form';
+  registration_type: 'none' | 'external_link' | 'internal_form';
   registration_link: string | null;
+  registration_deadline: string | null;
 };
 
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,7 @@ function sanitizeEventData(events: DatabaseEvent[]): Event[] {
       description: event.description || '',
       location: event.location || '',
       category: event.category || 'General',
+      registration_deadline: event.registration_deadline || null,
     }));
 }
 

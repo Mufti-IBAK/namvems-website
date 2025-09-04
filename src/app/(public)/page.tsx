@@ -95,13 +95,14 @@ export default function Home() {
 					scrollTrigger: {
 						trigger: '.stats-section',
 						start: 'top 80%',
-						toggles: 'play none none reverse'
+						toggleActions: 'play none none reverse'
 					}
 				}
 			);
 		
 			// Section fade-in animations
-			gsap.utils.toArray('.fade-section').forEach((section: HTMLElement) => {
+const fadeSections = gsap.utils.toArray('.fade-section') as HTMLElement[];
+			fadeSections.forEach((section) => {
 				gsap.fromTo(section,
 					{ opacity: 0, y: 40 },
 					{
@@ -112,14 +113,15 @@ export default function Home() {
 						scrollTrigger: {
 							trigger: section,
 							start: 'top 85%',
-							toggles: 'play none none reverse'
+							toggleActions: 'play none none reverse'
 						}
 					}
 				);
 			});
 		
 			// Card stagger animations
-			gsap.utils.toArray('.card-container').forEach((container: HTMLElement) => {
+const cardContainers = gsap.utils.toArray('.card-container') as HTMLElement[];
+			cardContainers.forEach((container) => {
 				const cards = container.querySelectorAll('.stagger-card');
 				gsap.fromTo(cards,
 					{ opacity: 0, y: 30, scale: 0.9 },
@@ -133,7 +135,7 @@ export default function Home() {
 						scrollTrigger: {
 							trigger: container,
 							start: 'top 80%',
-							toggles: 'play none none reverse'
+							toggleActions: 'play none none reverse'
 						}
 					}
 				);
@@ -366,7 +368,7 @@ export default function Home() {
 										title={resource.title}
 										type={resource.type as 'handbook' | 'guide' | 'video' | 'image' | 'research' | 'other'}
 										description={resource.description || ''}
-										fileSize={resource.file_size || undefined}
+										{...(resource.file_size ? { fileSize: resource.file_size } : {})}
 										downloadUrl={resource.download_url}
 										onDownload={handleDownload} 
 									/>

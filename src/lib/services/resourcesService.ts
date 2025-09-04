@@ -1,4 +1,4 @@
-import { Resource } from '../types/index';
+import { Resource } from '../types/resource';
 
 // WARNING: This service uses mock data - replace with real Supabase queries for production
 // TODO: Remove mock data and implement actual database queries
