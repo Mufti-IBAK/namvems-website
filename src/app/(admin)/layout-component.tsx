@@ -1,12 +1,16 @@
 // src/app/(admin)/layout-component.tsx
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaCalendarAlt, FaBook, FaSignOutAlt, FaTachometerAlt, FaBars, FaTimes, FaUsers, FaSpinner } from 'react-icons/fa';
+import { gsap } from 'gsap';
+import { 
+    FaCalendarAlt, FaBook, FaSignOutAlt, FaTachometerAlt, FaBars, FaTimes, FaUsers, FaSpinner,
+    FaHome, FaGlobe, FaUserCheck
+} from 'react-icons/fa';
 
 function NavLink({ href, icon: Icon, label, isSidebarOpen }: { href: string, icon: React.ElementType, label: string, isSidebarOpen: boolean }) {
     return (
@@ -28,48 +32,98 @@ function AdminLoadingScreen() {
     );
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
     const { user, loading, signOut, userRole } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
   
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const sidebarRef = useRef<HTMLDivElement>(null);
+    const backdropRef = useRef<HTMLDivElement>(null);
+    
+    // GSAP Animation for mobile menu
+    useEffect(() => {
+        const sidebar = sidebarRef.current;
+        const backdrop = backdropRef.current;
+        
+        if (sidebar && backdrop) {
+            if (isMobileMenuOpen) {
+                // Animate sidebar in
+                gsap.set(sidebar, { x: '-100%' });
+                gsap.set(backdrop, { opacity: 0, display: 'block' });
+                
+                gsap.timeline()
+                    .to(backdrop, { opacity: 1, duration: 0.3, ease: 'power2.out' })
+                    .to(sidebar, { x: '0%', duration: 0.4, ease: 'power3.out' }, '-=0.1');
+            } else {
+                // Animate sidebar out
+                gsap.timeline()
+                    .to(sidebar, { x: '-100%', duration: 0.3, ease: 'power2.in' })
+                    .to(backdrop, { opacity: 0, duration: 0.2, ease: 'power2.in' }, '-=0.1')
+                    .set(backdrop, { display: 'none' });
+            }
+        }
+    }, [isMobileMenuOpen]);
+    
+    // Mobile toggle function
+    const toggleMobileMenu = useCallback(() => {
+        setIsMobileMenuOpen(prev => !prev);
+    }, []);
+    
+    // This state is the key to fixing the mobile reload bug.
+    const [initialCheckCompleted, setInitialCheckCompleted] = useState(false);
 
-    // This effect handles closing the mobile menu on any navigation.
+    useEffect(() => {
+        // This effect runs when the auth state changes.
+        if (!loading) {
+            const hasAdminRole = user && (userRole === 'admin' || userRole === 'super_admin');
+            if (hasAdminRole) {
+                // If they are an admin, we lock in the state. The loading screen will disappear.
+                setInitialCheckCompleted(true);
+            } else {
+                // If they are not an admin, redirect.
+                router.replace('/login');
+            }
+        }
+    }, [user, userRole, loading, router]);
+
+    // Handle body scroll when mobile menu is open
     useEffect(() => {
         if (isMobileMenuOpen) {
-            setIsMobileMenuOpen(false);
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Cleanup function
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [isMobileMenuOpen]);
+
+    // This effect handles closing the mobile menu on navigation.
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
     }, [pathname]);
 
-    // This is the final, correct auth guard.
-    const hasAdminRole = user && (userRole === 'admin' || userRole === 'super_admin');
-    
-    // This effect handles the redirection logic. It's called at the top level.
-    useEffect(() => {
-        if (!loading && !hasAdminRole) {
-            router.replace('/login');
-        }
-    }, [loading, hasAdminRole, router]);
-
-
-    // If the auth state is loading OR if the user is not a confirmed admin yet,
-    // show the loading screen.
-    if (loading || !hasAdminRole) {
+    // This is the stable guard. It will only show the loading screen on the very first load.
+    // It will NOT re-trigger on mobile tab focus.
+    if (!initialCheckCompleted) {
         return <AdminLoadingScreen />;
     }
 
-    // If we reach this point, the user is a confirmed admin, and we can render the UI.
     return (
         <div className="flex min-h-screen bg-gray-50">
+            {/* Sidebar */}
             <aside 
-                className={`fixed md:relative inset-y-0 left-0 bg-white shadow-lg z-30 transition-all duration-300 ease-in-out 
-                           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
-                           md:translate-x-0 ${isSidebarOpen ? 'w-64' : 'w-20'}`}
+                ref={sidebarRef}
+                data-mobile-open={isMobileMenuOpen}
+                className={`fixed md:relative inset-y-0 left-0 bg-white shadow-xl z-50 md:z-30 
+                           ${isMobileMenuOpen ? '' : '-translate-x-full md:translate-x-0'} 
+                           ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-hidden`}
             >
-                <div className="p-4 border-b flex items-center justify-between h-16">
+                {/* Header */}
+                <div className="p-4 border-b flex items-center justify-between h-16 flex-shrink-0">
                     <Link href="/admin" className={`flex items-center space-x-2 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0 md:opacity-100 md:sr-only'}`}>
                         <div className="relative w-10 h-10 flex-shrink-0">
                             <Image src="/assets/logo.png" alt="NAMVEMS Logo" fill={true} style={{objectFit: 'contain'}} />
@@ -80,47 +134,73 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {isSidebarOpen ? <FaTimes /> : <FaBars />}
                     </button>
                 </div>
-                <nav className="mt-4 flex flex-col h-[calc(100vh-64px)]">
-                    <div className="flex-grow space-y-2">
+                
+                {/* Scrollable Navigation Content - Contains ALL navigation items */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    {/* Top Navigation - Dashboard and main links */}
+                    <div className="px-2 py-4 space-y-2">
                         <NavLink href="/admin" icon={FaTachometerAlt} label="Dashboard" isSidebarOpen={isSidebarOpen} />
                         <NavLink href="/admin/events" icon={FaCalendarAlt} label="Manage Events" isSidebarOpen={isSidebarOpen} />
                         <NavLink href="/admin/resources" icon={FaBook} label="Manage Resources" isSidebarOpen={isSidebarOpen} />
-                        
-                        {/* --- ADDED THIS TEMPORARY LINK FOR TESTING --- */}
-                        <NavLink href="/admin/test" icon={FaSpinner} label="Test Page" isSidebarOpen={isSidebarOpen} />
-
+                        <NavLink href="/admin/registrations" icon={FaUserCheck} label="Event Registrations" isSidebarOpen={isSidebarOpen} />
                         {userRole === 'super_admin' && (
                             <NavLink href="/admin/users" icon={FaUsers} label="Manage Users" isSidebarOpen={isSidebarOpen} />
                         )}
                     </div>
-                    <div className="border-t p-4">
-                        <button onClick={() => signOut()} className="flex items-center w-full py-3 px-6 text-red-500 hover:bg-red-100 rounded-md transition-colors text-sm">
-                            <FaSignOutAlt size={20} className="flex-shrink-0"/>
-                            <span className={`ml-4 whitespace-nowrap transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Sign Out</span>
-                        </button>
+                    
+                    {/* Spacer for better mobile layout */}
+                    <div className="h-8"></div>
+                    
+                    {/* Public Site Links */}
+                    <div className="px-2 pb-2 border-t mt-4">
+                        <div className="pt-4">
+                            <p className={`px-6 text-xs text-gray-400 font-semibold uppercase tracking-wider transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>
+                                Public Site
+                            </p>
+                            <div className="mt-2 space-y-2">
+                                <NavLink href="/" icon={FaHome} label="Homepage" isSidebarOpen={isSidebarOpen} />
+                                <NavLink href="/events" icon={FaGlobe} label="Events Page" isSidebarOpen={isSidebarOpen} />
+                            </div>
+                        </div>
                     </div>
-                </nav>
+                    
+                    {/* Sign Out - At bottom of scrollable area */}
+                    <div className="px-2 pb-4 border-t mt-4">
+                        <div className="pt-4">
+                            <button onClick={() => signOut()} className="flex items-center w-full py-3 px-6 text-red-500 hover:bg-red-100 rounded-md transition-colors text-sm">
+                                <FaSignOutAlt size={20} className="flex-shrink-0"/>
+                                <span className={`ml-4 whitespace-nowrap transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {/* Extra padding at bottom for better mobile scrolling */}
+                    <div className="h-8 md:h-0"></div>
+                </div>
             </aside>
             
-            {isMobileMenuOpen && (
-                <div onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-black/50 z-20 md:hidden" aria-hidden="true"></div>
-            )}
+            {/* Backdrop */}
+            <div 
+                ref={backdropRef}
+                onClick={() => setIsMobileMenuOpen(false)} 
+                className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+                style={{ display: 'none' }}
+                aria-hidden="true" 
+            />
 
             <div className="flex-1 flex flex-col w-full">
-                <header className="md:hidden bg-white shadow-md flex items-center justify-between p-4 h-16 sticky top-0 z-10">
+                <header className="md:hidden bg-white shadow-md flex items-center justify-between p-4 h-16 sticky top-0 z-50">
                     <Link href="/" className="flex items-center space-x-2">
                         <div className="relative w-10 h-10">
                             <Image src="/assets/logo.png" alt="NAMVEMS Logo" fill={true} style={{objectFit: 'contain'}} />
                         </div>
                         <span className="text-xl font-bold text-text">NAMVEMS</span>
                     </Link>
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-md hover:bg-gray-100">
+                    <button onClick={toggleMobileMenu} className="p-2 rounded-md hover:bg-gray-100">
                         {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                     </button>
                 </header>
-                <main className="flex-1 p-4 md:p-6 lg:p-8">
-                    {children}
-                </main>
+                <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
             </div>
         </div>
     );

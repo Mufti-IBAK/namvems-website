@@ -97,6 +97,68 @@
     font-size: 2.25rem; /* 36px */
     line-height: 2.5rem; /* 40px */
   }
+
+  /* Ensure mobile sidebar is always visible when open */
+  .mobile-sidebar-open {
+    transform: translateX(0) !important;
+    z-index: 50 !important;
+  }
+
+  /* Ensure mobile backdrop is visible */
+  .mobile-backdrop {
+    z-index: 40 !important;
+  }
+
+  /* Force mobile sidebar to stay visible */
+  @media (max-width: 767px) {
+    aside[data-mobile-open="true"] {
+      transform: translateX(0) !important;
+      z-index: 50 !important;
+    }
+    
+    /* Ensure sidebar content scrolls on mobile with smooth touch scrolling */
+    aside[data-mobile-open="true"] .flex-1 {
+      max-height: calc(100vh - 80px) !important; /* Account for header */
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior: contain !important;
+      /* Improve scrolling momentum on iOS */
+      -webkit-scroll-behavior: smooth !important;
+      scroll-behavior: smooth !important;
+    }
+    
+    /* Smooth scrolling for mobile sidebar */
+    aside[data-mobile-open="true"] {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+    
+    /* Ensure sidebar has proper height on mobile */
+    aside[data-mobile-open="true"] {
+      height: 100vh !important;
+      height: 100dvh !important; /* Dynamic viewport height for mobile */
+    }
+    
+    /* Custom scrollbar for mobile sidebar */
+    aside[data-mobile-open="true"] .flex-1::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    aside[data-mobile-open="true"] .flex-1::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 2px;
+    }
+    
+    aside[data-mobile-open="true"] .flex-1::-webkit-scrollbar-thumb {
+      background: #c0c0c0;
+      border-radius: 2px;
+    }
+    
+    aside[data-mobile-open="true"] .flex-1::-webkit-scrollbar-thumb:hover {
+      background: #a0a0a0;
+    }
+  }
 }
 
 @keyframes fadeInUp {
@@ -108,7 +170,7 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-black font-semibold rounded-xl py-3 px-6 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transform hover:-translate-y-0.5;
+    @apply bg-primary text-black font-semibold rounded-xl py-3 px-8 transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transform hover:-translate-y-0.5 min-w-[160px] whitespace-nowrap;
   }
   
   .btn-primary-outline {
@@ -128,11 +190,11 @@
   }
   
   .hero-button-primary {
-    @apply bg-primary text-black font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 text-lg transform hover:-translate-y-1;
+    @apply bg-primary text-black font-bold py-4 px-10 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 text-lg transform hover:-translate-y-1 min-w-[200px] whitespace-nowrap;
   }
   
   .hero-button-secondary {
-    @apply bg-transparent border-2 border-white text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 text-lg transform hover:-translate-y-1;
+    @apply bg-transparent border-2 border-white text-white font-bold py-4 px-10 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 text-lg transform hover:-translate-y-1 min-w-[200px] whitespace-nowrap;
   }
 }
 
@@ -207,12 +269,90 @@ input, textarea, select {
   }
 }
 
+/* Enhanced typography with modern font stack */
+
 body {
   color: var(--color-text);
   background-color: var(--color-background);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  letter-spacing: -0.011em;
+}
+
+/* Heading font improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-plus-jakarta-sans), var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Enhanced text rendering */
+* {
+  text-rendering: optimizeLegibility;
+}
+
+/* Improved contrast classes */
+.text-high-contrast {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.text-medium-contrast {
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.text-light-contrast {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.text-white-high-contrast {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.text-white-medium-contrast {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.text-white-light-contrast {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Enhanced gradient text */
+.gradient-text-primary {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-animation 3s ease-in-out infinite;
+}
+
+@keyframes gradient-animation {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Improved font weights */
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
 }

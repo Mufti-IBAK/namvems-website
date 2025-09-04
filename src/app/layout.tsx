@@ -1,11 +1,20 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import LayoutClient from "@/components/LayoutClient";
 import { Toaster } from 'react-hot-toast';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter"
+});
+const plusJakartaSans = Plus_Jakarta_Sans({ 
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta-sans"
+});
 
 export const metadata: Metadata = {
   title: "NAMVEMS - Nigerian Association of Muslim Veterinary Medical Students",
@@ -19,14 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* The body tag is the direct and only child of html */}
-      <body className={`${inter.className} bg-white`}>
-        {/* The AuthProvider wraps everything inside the body */}
+      <body className={`${inter.className} ${plusJakartaSans.variable} bg-white flex flex-col min-h-screen`}>
         <AuthProvider>
-          {/* The Toaster is a direct child of the provider, ensuring it has context */}
           <Toaster position="bottom-right" />
-          {/* The children (your page layouts) are siblings to the Toaster */}
-          {children}
+          <LayoutClient>{children}</LayoutClient>
         </AuthProvider>
       </body>
     </html>

@@ -1,7 +1,8 @@
-import { Event } from '../types/event';
+import { Event } from '../types/index';
 
-// Mock data for development
-const mockEvents: Event[] = [
+// WARNING: This service uses mock data - replace with real Supabase queries for production
+// TODO: Remove mock data and implement actual database queries
+const mockEvents: any[] = [
   {
     id: '1',
     title: 'Annual Conference 2024',

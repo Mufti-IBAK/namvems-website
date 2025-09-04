@@ -1,7 +1,7 @@
 # NAMVEMS Website - Project Structure & File Documentation
 **Project:** Nigerian Association of Muslim Veterinary Medical Students Website  
-**Framework:** Next.js 14 with App Router  
-**Generated:** August 27, 2025
+**Framework:** Next.js 15.4.5 with App Router  
+**Generated:** January 3, 2025
 
 ---
 
@@ -10,16 +10,18 @@
 The NAMVEMS website is a modern web application built with Next.js 14, featuring an admin dashboard for content management and a public-facing website for members and visitors. The application uses Supabase for authentication, database management, and file storage.
 
 ### Technology Stack
-- **Frontend:** Next.js 14 (App Router), React 18, TypeScript
-- **Styling:** Tailwind CSS
+- **Frontend:** Next.js 15.4.5 (App Router), React 19.1.0, TypeScript 5
+- **Styling:** Tailwind CSS v4 with PostCSS
 - **Authentication:** Supabase Auth with role-based access control
-- **Database:** Supabase PostgreSQL
-- **File Storage:** Supabase Storage
-- **State Management:** React Context API
-- **Form Handling:** React Hook Form, Server Actions
-- **Animations:** GSAP
-- **Icons:** React Icons (Font Awesome)
-- **Date Handling:** date-fns
+- **Database:** Supabase PostgreSQL with SSR support
+- **File Storage:** Supabase Storage for file uploads
+- **State Management:** React Context API (AuthContext)
+- **Form Handling:** Server Actions with Zod validation
+- **Animations:** GSAP 3.13.0 with ScrollTrigger
+- **Icons:** React Icons 5.5.0 (Font Awesome and others)
+- **Date Handling:** date-fns 4.1.0
+- **Fonts:** Next.js Google Fonts (Inter, Plus Jakarta Sans)
+- **Notifications:** React Hot Toast 2.6.0
 
 ---
 
@@ -28,16 +30,24 @@ The NAMVEMS website is a modern web application built with Next.js 14, featuring
 ```
 namvems-website/
 ├── .gitignore                              # Git ignore configuration
-├── .hintrc                                 # Web development hints configuration
-├── eslint.config.mjs                      # ESLint configuration
-├── NAMVEMS_DEBUG_REPORT.md                 # Debug report (recently added)
-├── next.config.ts                         # Next.js configuration
+├── .env                                    # Environment variables (git-ignored)
+├── .env.example                            # Environment variables template
+├── .gitignore                             # Git ignore patterns
+├── .hintrc                                # Web development hints configuration
+├── COMPREHENSIVE_DEBUG_REPORT.md          # Comprehensive debug documentation
+├── ENV_VARIABLES_FIX.md                   # Environment variables fix documentation
+├── eslint.config.mjs                      # ESLint configuration (flat config)
+├── HOMEPAGE_FIXES_SUMMARY.md              # Homepage fixes documentation
+├── NAMVEMS_DEBUG_REPORT.md                # Original debug report
+├── next.config.ts                         # Next.js configuration with security headers
 ├── package.json                           # Project dependencies and scripts
 ├── package-lock.json                      # Dependency lock file
-├── postcss.config.mjs                     # PostCSS configuration
-├── PROJECT_SUMMARY_FOR_AI.md               # AI project summary
-├── README.md                              # Project documentation
-├── tsconfig.json                          # TypeScript configuration
+├── postcss.config.mjs                     # PostCSS configuration for Tailwind v4
+├── PROJECT_STRUCTURE_DOCUMENTATION.md     # This file - detailed structure docs
+├── PROJECT_SUMMARY_FOR_AI.md              # AI project summary and context
+├── README.md                              # Main project documentation
+├── tsconfig.json                          # TypeScript configuration (strict mode)
+├── TYPESCRIPT_FIXES_SUMMARY.md            # TypeScript fixes documentation
 │
 ├── public/                                # Static assets
 │   ├── assets/

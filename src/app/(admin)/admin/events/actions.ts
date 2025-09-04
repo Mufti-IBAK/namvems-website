@@ -26,8 +26,9 @@ const EventSchema = z.object({
     image_url: z.string().optional(),
     image_file: z.instanceof(File).optional(),
     max_attendees: z.coerce.number().min(0).optional(),
-    registration_type: z.enum(['none', 'google_form', 'internal_form']),
+    registration_type: z.enum(['none', 'external_link', 'internal_form']),
     registration_link: z.string().optional(),
+    registration_deadline: z.string().optional(),
 });
 
 export async function upsertEvent(prevState: ActionState, formData: FormData): Promise<ActionState> {

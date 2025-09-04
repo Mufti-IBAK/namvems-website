@@ -1,7 +1,7 @@
 // src/app/(admin)/admin/events/EventForm.tsx
 'use client'
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { upsertEvent, type ActionState } from './actions';
 import { type Event } from '@/lib/types';
 import { format } from 'date-fns';
@@ -22,6 +22,7 @@ export default function EventForm({ event }: { event?: Event | null }) {
     const router = useRouter();
     const initialState: ActionState = { message: null, errors: {}, success: false };
     const [state, formAction] = useActionState(upsertEvent, initialState);
+    const [registrationType, setRegistrationType] = useState(event?.registration_type || 'none');
 
     useEffect(() => {
         if (state.success && state.message) {
@@ -42,6 +43,7 @@ export default function EventForm({ event }: { event?: Event | null }) {
     };
 
     const defaultDate = event?.date ? format(new Date(event.date), "yyyy-MM-dd'T'HH:mm") : '';
+    const defaultRegistrationDeadline = event?.registration_deadline ? format(new Date(event.registration_deadline), "yyyy-MM-dd'T'HH:mm") : '';
         
     return (
         <form 
@@ -130,17 +132,38 @@ export default function EventForm({ event }: { event?: Event | null }) {
 
                 <div>
                     <label htmlFor="registration_type" className="block text-sm font-medium text-gray-700">Registration Type</label>
-                    <select id="registration_type" name="registration_type" defaultValue={event?.registration_type || 'none'} className="mt-1 block w-full">
+                    <select 
+                        id="registration_type" 
+                        name="registration_type" 
+                        value={registrationType}
+                        onChange={(e) => setRegistrationType(e.target.value as 'none' | 'external_link' | 'internal_form')}
+                        className="mt-1 block w-full"
+                    >
                         <option value="none">None</option>
-                        <option value="google_form">Google Form</option>
+                        <option value="external_link">External Link</option>
                         <option value="internal_form">Internal Form</option>
                     </select>
                 </div>
             </div>
 
+            {registrationType === 'external_link' && (
+                <div>
+                    <label htmlFor="registration_link" className="block text-sm font-medium text-gray-700">External Registration URL</label>
+                    <input id="registration_link" name="registration_link" type="text" placeholder="mubeenacademy.com or https://forms.gle/... or t.me/channel" defaultValue={event?.registration_link || ''} className="mt-1 block w-full" />
+                    <p className="mt-1 text-xs text-gray-500">Enter the external website URL (with or without https://)</p>
+                </div>
+            )}
+
             <div>
-                <label htmlFor="registration_link" className="block text-sm font-medium text-gray-700">Registration Link (if applicable)</label>
-                <input id="registration_link" name="registration_link" type="text" placeholder="https://forms.gle/..." defaultValue={event?.registration_link || ''} className="mt-1 block w-full" />
+                <label htmlFor="registration_deadline" className="block text-sm font-medium text-gray-700">Registration Deadline (optional)</label>
+                <input
+                    id="registration_deadline"
+                    name="registration_deadline"
+                    type="datetime-local"
+                    defaultValue={defaultRegistrationDeadline}
+                    className="mt-1 block w-full"
+                />
+                <p className="mt-1 text-xs text-gray-500">Leave empty for no deadline</p>
             </div>
 
             <div className="pt-4">

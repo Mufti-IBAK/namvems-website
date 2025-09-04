@@ -1,27 +1,29 @@
 // src/context/AuthContext.tsx
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { User, SupabaseClient } from '@supabase/supabase-js'
-import { useRouter } from 'next/navigation'; // Import the router
+import { useRouter } from 'next/navigation'
 
 interface AuthContextType {
   supabase: SupabaseClient;
   user: User | null;
   userRole: string | null;
   loading: boolean;
+  error: string | null; // FIX: Add error to interface
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const supabase = createClient();
-  const router = useRouter(); // Initialize the router
+  const supabase = useMemo(() => createClient(), []); // FIX: Memoize Supabase client
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // FIX: Add error state
 
   useEffect(() => {
     const getSessionAndRole = async () => {
@@ -64,22 +66,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase]); // Removed dependency array items to prevent re-renders, supabase client is stable
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    // CRITICAL CHANGE #1: We manually clear the state and redirect.
-    // This ensures a clean state on the next login.
-    setUser(null);
-    setUserRole(null);
-    router.push('/login'); // Redirect to login page after sign out
-  };
+  const signOut = useCallback(async () => {
+    try {
+      setLoading(true);
+      await supabase.auth.signOut();
+      // Clear state and redirect
+      setUser(null);
+      setUserRole(null);
+      setError(null);
+      router.push('/login');
+    } catch (err) {
+      console.error('Sign out error:', err);
+      setError('Failed to sign out');
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase.auth, router]); // FIX: Memoize signOut function
 
-  const value = {
+  const value = useMemo(() => ({
     supabase,
     user,
     userRole,
     loading,
+    error,
     signOut,
-  };
+  }), [supabase, user, userRole, loading, error, signOut]); // FIX: Memoize context value
 
   // CRITICAL CHANGE #2: We remove the !loading check from the return.
   // This allows the children (the page) to render even while the role is being
