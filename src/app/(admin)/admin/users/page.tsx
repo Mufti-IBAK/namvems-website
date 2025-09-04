@@ -29,13 +29,28 @@ function UserRoleForm({ user }: { user: { id: string, email: string | undefined,
 
 export default async function UserManagementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
     const supabase = createClient();
-    const supabaseAdmin = createSupabaseAdminClient();
 
     const { data: { user } } = await supabase.auth.getUser();
     const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user?.id || '').single();
     if (roleData?.role !== 'super_admin') {
         redirect('/admin');
     }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return (
+            <div className="bg-white rounded-xl card-shadow p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Admin configuration required</h2>
+                <p className="text-gray-700 mb-4">To use the User Management page, set the SUPABASE_SERVICE_ROLE_KEY environment variable in Vercel for this project (Production and Preview). After saving, redeploy.</p>
+                <ol className="list-decimal ml-6 text-gray-700 space-y-1">
+                    <li>Vercel → Project → Settings → Environment Variables</li>
+                    <li>Add SUPABASE_SERVICE_ROLE_KEY with your Supabase Service Role key</li>
+                    <li>Click Redeploy</li>
+                </ol>
+            </div>
+        );
+    }
+
+    const supabaseAdmin = createSupabaseAdminClient();
 
     // Fetch users (consider pagination later)
     const { data: { users }, error: usersError } = await supabaseAdmin.auth.admin.listUsers();
