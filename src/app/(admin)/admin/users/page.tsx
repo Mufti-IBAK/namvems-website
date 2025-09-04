@@ -27,7 +27,7 @@ function UserRoleForm({ user }: { user: { id: string, email: string | undefined,
     );
 }
 
-export default async function UserManagementPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+export default async function UserManagementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
     const supabase = createClient();
     const supabaseAdmin = createSupabaseAdminClient();
 
@@ -52,11 +52,12 @@ export default async function UserManagementPage({ searchParams }: { searchParam
         role: roleMap.get(u.id) || 'member'
     }));
 
-    // Apply search/filter/sort based on query params
-    const q = (searchParams?.q as string | undefined)?.toLowerCase()?.trim() || '';
-    const roleFilter = (searchParams?.role as string | undefined) || 'all';
-    const sortKey = (searchParams?.sort as string | undefined) || 'created_at';
-    const sortOrder = ((searchParams?.order as string | undefined) || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
+    // Apply search/filter/sort based on query params (Next.js 15: searchParams is a Promise)
+    const sp = await searchParams;
+    const q = (sp?.q as string | undefined)?.toLowerCase()?.trim() || '';
+    const roleFilter = (sp?.role as string | undefined) || 'all';
+    const sortKey = (sp?.sort as string | undefined) || 'created_at';
+    const sortOrder = ((sp?.order as string | undefined) || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
 
     if (q) {
         usersWithRoles = usersWithRoles.filter(u =>
