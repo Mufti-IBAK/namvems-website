@@ -1,7 +1,9 @@
 // src/app/(admin)/admin/users/page.tsx
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { updateUserRoleAction, deleteUserAction } from "./actions";
+import ConfirmSubmitButton from './ConfirmSubmitButton'
 import { FaUsers, FaSearch, FaTrash, FaSort } from "react-icons/fa";
 import { format } from "date-fns";
 
@@ -31,7 +33,28 @@ function UserRoleForm({ user }: { user: { id: string, email: string | undefined,
 
 export default async function UserManagementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   try {
-    const supabase = createClient();
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch {}
+          },
+          remove(name: string, options: CookieOptions) {
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch {}
+          },
+        },
+      }
+    );
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -82,8 +105,8 @@ export default async function UserManagementPage({ searchParams }: { searchParam
         if (!baseUrl || !serviceKey) {
             throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
         }
-        const usersUrl = new URL('auth/v1/users', baseUrl.endsWith('/') ? baseUrl : baseUrl + '/');
-        usersUrl.searchParams.set('per_page', '1000');
+        const usersUrl = new URL('auth/v1/admin/users', baseUrl.endsWith('/') ? baseUrl : baseUrl + '/');
+        usersUrl.searchParams.set('per_page', '200');
         usersUrl.searchParams.set('page', '1');
 
         const r = await fetch(usersUrl.toString(), {
@@ -228,14 +251,13 @@ export default async function UserManagementPage({ searchParams }: { searchParam
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
                                     <form action={deleteUserAction}>
                                         <input type="hidden" name="userId" value={u.id} />
-                                        <button
-                                            type="submit"
-                                            className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
-                                            onClick={(e) => { if (!confirm(`Delete ${u.email}? This cannot be undone.`)) { e.preventDefault(); } }}
-                                            title="Delete user"
+                                        <ConfirmSubmitButton
+                                          confirmText={`Delete ${u.email}? This cannot be undone.`}
+                                          className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
+                                          title="Delete user"
                                         >
-                                            <FaTrash /> Delete
-                                        </button>
+                                          <FaTrash /> Delete
+                                        </ConfirmSubmitButton>
                                     </form>
                                 </td>
                             </tr>
