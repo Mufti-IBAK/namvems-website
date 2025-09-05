@@ -226,20 +226,20 @@ export default async function UserManagementPage({ searchParams }: { searchParam
             </div>
 
             <div className="bg-white rounded-xl card-shadow overflow-x-auto">
-                <table className="w-full text-left">
+                <table className="w-full table-fixed text-left">
                     <thead className="bg-gray-50 border-b">
                         <tr>
-                            <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase">User Email</th>
-                            <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase">Joined Date</th>
-                            <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Manage Role</th>
-                            <th className="px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Actions</th>
+                            <th className="w-1/2 px-6 py-3 text-sm font-semibold text-gray-600 uppercase">User Email</th>
+                            <th className="w-1/6 px-6 py-3 text-sm font-semibold text-gray-600 uppercase">Joined Date</th>
+                            <th className="w-1/4 px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Manage Role</th>
+                            <th className="w-1/6 px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y">
                         {usersWithRoles.map((u) => (
                             <tr key={u.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <p className="font-medium text-gray-900">{u.email}</p>
+                                <td className="px-6 py-4 whitespace-nowrap overflow-hidden">
+                                    <p className="font-medium text-gray-900 truncate">{u.email}</p>
                                     <p className="text-xs text-gray-500">{u.role}</p>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-gray-500">

@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { gsap } from 'gsap';
 import { 
     FaCalendarAlt, FaBook, FaSignOutAlt, FaTachometerAlt, FaBars, FaTimes, FaUsers, FaSpinner,
-    FaHome, FaGlobe, FaUserCheck
+    FaHome, FaGlobe, FaUserCheck, FaImage
 } from 'react-icons/fa';
 
 function NavLink({ href, icon: Icon, label, isSidebarOpen }: { href: string, icon: React.ElementType, label: string, isSidebarOpen: boolean }) {
@@ -120,8 +120,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 data-mobile-open={isMobileMenuOpen}
                 className={`fixed md:relative inset-y-0 left-0 bg-white shadow-xl z-50 md:z-30 
                            ${isMobileMenuOpen ? '' : '-translate-x-full md:translate-x-0'} 
-                           ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-hidden`}
-            >
+${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-y-auto`}>
                 {/* Header */}
                 <div className="p-4 border-b flex items-center justify-between h-16 flex-shrink-0">
                     <Link href="/admin" className={`flex items-center space-x-2 transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0 md:opacity-100 md:sr-only'}`}>
@@ -142,6 +141,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <NavLink href="/admin" icon={FaTachometerAlt} label="Dashboard" isSidebarOpen={isSidebarOpen} />
                         <NavLink href="/admin/events" icon={FaCalendarAlt} label="Manage Events" isSidebarOpen={isSidebarOpen} />
                         <NavLink href="/admin/resources" icon={FaBook} label="Manage Resources" isSidebarOpen={isSidebarOpen} />
+                        <NavLink href="/admin/gallery" icon={FaImage} label="Gallery" isSidebarOpen={isSidebarOpen} />
                         <NavLink href="/admin/registrations" icon={FaUserCheck} label="Event Registrations" isSidebarOpen={isSidebarOpen} />
                         {userRole === 'super_admin' && (
                             <NavLink href="/admin/users" icon={FaUsers} label="Manage Users" isSidebarOpen={isSidebarOpen} />

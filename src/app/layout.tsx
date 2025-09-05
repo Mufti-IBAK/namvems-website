@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   title: "NAMVEMS - Nigerian Association of Muslim Veterinary Medical Students",
   description: "Official website for NAMVEMS",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.png",
   },
 };
 

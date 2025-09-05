@@ -6,6 +6,7 @@ import { Event, Resource } from '@/lib/types';
 import SecondaryButton from "@/components/buttons/SecondaryButton";
 import EventCard from "@/components/cards/EventCard";
 import ResourceCard from "@/components/cards/ResourceCard";
+import HomepageGallery from './HomepageGallery';
 import { ONLINE_IMAGES } from "@/lib/constants/images";
 import { FaTelegram, FaUsers, FaCalendarAlt, FaBook, FaUniversity, FaArrowDown } from "react-icons/fa";
 import Link from "next/link";
@@ -338,6 +339,23 @@ const cardContainers = gsap.utils.toArray('.card-container') as HTMLElement[];
 							</SecondaryButton>
 						</Link>
 					</div>
+				</div>
+			</section>
+
+			{/* Gallery Section */}
+			<section className="fade-section py-12 sm:py-20 lg:py-24 bg-white">
+				<div className="container mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="text-center mb-12 sm:mb-16">
+						<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
+							Event Gallery
+						</h2>
+						<p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto mb-6 leading-relaxed">
+							Recent moments from our events.
+						</p>
+						<div className="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full"></div>
+					</div>
+					{/* Simple fetch of latest gallery images */}
+					<HomepageGallery />
 				</div>
 			</section>
 
