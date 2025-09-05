@@ -4,6 +4,7 @@
 import { cookies } from 'next/headers'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 function createSupabaseSSR() {
   const getCookieStore = async () => await cookies()
@@ -38,16 +39,16 @@ export async function addGalleryImageAction(formData: FormData) {
 
   // Verify role
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { ok: false, error: 'Not authenticated' }
+  if (!user) return redirect('/admin/gallery?error=notauth')
   const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
   if (!roleData || (roleData.role !== 'admin' && roleData.role !== 'super_admin')) {
-    return { ok: false, error: 'Insufficient permissions' }
+    return redirect('/admin/gallery?error=noperms')
   }
 
   // Limit: max 10 images
   const { count } = await supabase.from('gallery_images').select('*', { count: 'exact', head: true })
   if ((count ?? 0) >= 10) {
-    return { ok: false, error: 'Gallery limit reached (10). Remove or replace an image, or upload to Telegram.' }
+    return redirect('/admin/gallery?error=full')
   }
 
   const eventIdRaw = formData.get('event_id') as string | null
@@ -56,7 +57,7 @@ export async function addGalleryImageAction(formData: FormData) {
   const file = formData.get('image') as File | null
 
   if (!file && !urlInput) {
-    return { ok: false, error: 'Provide an image file or a URL.' }
+    return redirect('/admin/gallery?error=missing')
   }
 
   let storage_path: string | null = null
@@ -66,13 +67,13 @@ export async function addGalleryImageAction(formData: FormData) {
   if (file) {
     const maxBytes = 5 * 1024 * 1024
     if (file.size > maxBytes) {
-      return { ok: false, error: 'Each image must be less than 5MB. Please compress or upload to Telegram.' }
+      return redirect('/admin/gallery?error=toolarge')
     }
 
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
     const filename = `${user.id}/${Date.now()}.${ext}`
     const { error: uploadErr } = await supabase.storage.from('gallery').upload(filename, file, { contentType: file.type || 'image/jpeg', upsert: false })
-    if (uploadErr) return { ok: false, error: `Upload failed: ${uploadErr.message}` }
+    if (uploadErr) return redirect('/admin/gallery?error=upload')
 
     storage_path = filename
     const { data } = supabase.storage.from('gallery').getPublicUrl(filename)
@@ -92,24 +93,24 @@ export async function addGalleryImageAction(formData: FormData) {
     image_url,
     created_by: user.id,
   })
-  if (insertErr) return { ok: false, error: `Database error: ${insertErr.message}` }
+  if (insertErr) return redirect('/admin/gallery?error=db')
 
   revalidatePath('/admin/gallery')
   revalidatePath('/')
   revalidatePath('/gallery')
-  return { ok: true }
+  redirect('/admin/gallery?message=added')
 }
 
 export async function deleteGalleryImageAction(formData: FormData) {
   const supabase = createSupabaseSSR()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { ok: false, error: 'Not authenticated' }
+  if (!user) return redirect('/admin/gallery?error=notauth')
   const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
   if (!roleData || (roleData.role !== 'admin' && roleData.role !== 'super_admin')) {
-    return { ok: false, error: 'Insufficient permissions' }
+    return redirect('/admin/gallery?error=noperms')
   }
   const id = formData.get('id') as string | null
-  if (!id) return { ok: false, error: 'Missing image id' }
+  if (!id) return redirect('/admin/gallery?error=missingid')
 
   // Fetch storage path to delete file if any
   const { data: img } = await supabase.from('gallery_images').select('storage_path').eq('id', id).maybeSingle()
@@ -121,16 +122,16 @@ export async function deleteGalleryImageAction(formData: FormData) {
   revalidatePath('/admin/gallery')
   revalidatePath('/')
   revalidatePath('/gallery')
-  return { ok: true }
+  redirect('/admin/gallery?message=deleted')
 }
 
 export async function replaceGalleryImageAction(formData: FormData) {
   const supabase = createSupabaseSSR()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { ok: false, error: 'Not authenticated' }
+  if (!user) return redirect('/admin/gallery?error=notauth')
   const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle()
   if (!roleData || (roleData.role !== 'admin' && roleData.role !== 'super_admin')) {
-    return { ok: false, error: 'Insufficient permissions' }
+    return redirect('/admin/gallery?error=noperms')
   }
 
   const id = formData.get('id') as string | null
@@ -138,15 +139,15 @@ export async function replaceGalleryImageAction(formData: FormData) {
   const urlInput = (formData.get('image_url') as string | null) || null
   const file = formData.get('image') as File | null
 
-  if (!id) return { ok: false, error: 'Missing image id' }
-  if (!file && !urlInput && caption === null) return { ok: false, error: 'Provide a new file, URL, or caption' }
+  if (!id) return redirect('/admin/gallery?error=missingid')
+  if (!file && !urlInput && caption === null) return redirect('/admin/gallery?error=missing')
 
   let storage_path: string | null = null
   let image_url: string | null = null
 
   if (file) {
     const maxBytes = 5 * 1024 * 1024
-    if (file.size > maxBytes) return { ok: false, error: 'Image must be less than 5MB.' }
+    if (file.size > maxBytes) return redirect('/admin/gallery?error=toolarge')
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
     const filename = `${user.id}/${Date.now()}.${ext}`
     const { error: uploadErr } = await supabase.storage.from('gallery').upload(filename, file, { contentType: file.type || 'image/jpeg', upsert: false })
@@ -164,11 +165,11 @@ export async function replaceGalleryImageAction(formData: FormData) {
   if (image_url !== null) updates.image_url = image_url
 
   const { error: updateErr } = await supabase.from('gallery_images').update(updates).eq('id', id)
-  if (updateErr) return { ok: false, error: `Database error: ${updateErr.message}` }
+  if (updateErr) return redirect('/admin/gallery?error=db')
 
   revalidatePath('/admin/gallery')
   revalidatePath('/')
   revalidatePath('/gallery')
-  return { ok: true }
+  redirect('/admin/gallery?message=updated')
 }
 

@@ -27,7 +27,7 @@ async function getSupabase() {
   )
 }
 
-export default async function AdminGalleryPage() {
+export default async function AdminGalleryPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const supabase = await getSupabase()
 
   // Server action wrappers to satisfy React's expected signatures
@@ -65,8 +65,31 @@ export default async function AdminGalleryPage() {
 
   const count = images?.length ?? 0
 
+  const sp = await searchParams
+  const message = sp?.message as string | undefined
+  const error = sp?.error as string | undefined
+
   return (
     <div className="space-y-6">
+      {message && (
+        <div className="bg-green-100 text-green-800 p-3 rounded">
+          {message === 'added' && 'Image uploaded successfully.'}
+          {message === 'deleted' && 'Image deleted successfully.'}
+          {message === 'updated' && 'Image updated successfully.'}
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-100 text-red-800 p-3 rounded">
+          {error === 'full' && 'Gallery limit reached (10). Remove or replace an image, or upload to Telegram.'}
+          {error === 'toolarge' && 'Each image must be less than 5MB. Please compress or upload to Telegram.'}
+          {error === 'upload' && 'Upload failed. Please check the bucket exists and is public.'}
+          {error === 'db' && 'Database error. Please ensure gallery_images table exists.'}
+          {error === 'missing' && 'Provide an image file or a URL.'}
+          {error === 'missingid' && 'Missing image id.'}
+          {error === 'noperms' && 'Insufficient permissions.'}
+          {error === 'notauth' && 'Not authenticated.'}
+        </div>
+      )}
       <div className="bg-white rounded-xl p-6 shadow">
         <h1 className="text-2xl font-bold mb-4">Gallery Management</h1>
         <p className="text-sm text-gray-600 mb-4">You can upload up to 10 images. Each image must be less than 5MB.</p>
@@ -75,7 +98,7 @@ export default async function AdminGalleryPage() {
             Gallery is full (10 images). Remove or replace an image, or upload to Telegram instead.
           </div>
         )}
-        <form action={addAction} className="grid grid-cols-1 md:grid-cols-4 gap-3" encType="multipart/form-data">
+        <form action={addAction} className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
             <label className="block text-sm font-medium mb-1">Event</label>
             <select name="event_id" className="w-full border rounded px-3 py-2">
@@ -125,7 +148,7 @@ export default async function AdminGalleryPage() {
                   </div>
                   <details className="mt-2">
                     <summary className="cursor-pointer text-sm text-gray-600">Replace / Update</summary>
-                    <form action={replaceAction} encType="multipart/form-data" className="mt-2 space-y-2">
+                    <form action={replaceAction} className="mt-2 space-y-2">
                       <input type="hidden" name="id" value={img.id} />
                       <input type="text" name="caption" placeholder="New caption (optional)" className="w-full border rounded px-3 py-2" />
                       <input type="file" name="image" accept="image/*" className="w-full" />
