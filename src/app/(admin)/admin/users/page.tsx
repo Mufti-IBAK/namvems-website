@@ -75,14 +75,21 @@ export default async function UserManagementPage({ searchParams }: { searchParam
     createSupabaseAdminClient();
 
     // Fetch users via REST (server-side) to avoid any client/edge pitfalls
-    let users: Array<{ id: string; email?: string; created_at?: string }>; 
+    let users: Array<{ id: string; email?: string; created_at?: string }>;
     try {
-        const base = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/users`;
-        const url = `${base}?per_page=1000&page=1`;
-        const r = await fetch(url, {
+        const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string | undefined;
+        if (!baseUrl || !serviceKey) {
+            throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+        }
+        const usersUrl = new URL('auth/v1/users', baseUrl.endsWith('/') ? baseUrl : baseUrl + '/');
+        usersUrl.searchParams.set('per_page', '1000');
+        usersUrl.searchParams.set('page', '1');
+
+        const r = await fetch(usersUrl.toString(), {
             headers: {
-                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY as string,
-                authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                apikey: serviceKey,
+                authorization: `Bearer ${serviceKey}`,
                 accept: 'application/json',
             },
             cache: 'no-store',
