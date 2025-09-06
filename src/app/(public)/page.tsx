@@ -169,7 +169,7 @@ const cardContainers = gsap.utils.toArray('.card-container') as HTMLElement[];
 					</span>
 				</h1>
 				<p className="hero-subtitle text-lg sm:text-xl md:text-2xl lg:text-3xl text-white-medium-contrast max-w-4xl mx-auto mb-8 sm:mb-12 leading-relaxed font-medium">
-					Empowering Nigerian Veterinary Medical Students Nationwide
+					Empowering Nigerian Muslim Veterinary Medical Students Nationwide.
 				</p>
 					<div className="hero-buttons flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 max-w-lg mx-auto">
 						<Link href="/login" className="group">

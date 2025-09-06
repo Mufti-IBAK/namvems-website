@@ -12,9 +12,12 @@ import {
     FaHome, FaGlobe, FaUserCheck, FaImage
 } from 'react-icons/fa';
 
-function NavLink({ href, icon: Icon, label, isSidebarOpen }: { href: string, icon: React.ElementType, label: string, isSidebarOpen: boolean }) {
+function NavLink({ href, icon: Icon, label, isSidebarOpen, onNavigate }: { href: string, icon: React.ElementType, label: string, isSidebarOpen: boolean, onNavigate?: () => void }) {
+    const handleClick: React.MouseEventHandler<HTMLAnchorElement> = () => {
+        if (onNavigate) onNavigate();
+    };
     return (
-        <Link href={href} className="flex items-center py-3 px-6 text-gray-700 hover:bg-primary hover:text-black transition-colors duration-200">
+        <Link href={href} className="flex items-center py-3 px-6 text-gray-700 hover:bg-primary hover:text-black transition-colors duration-200" onClick={handleClick}>
             <Icon size={20} className="flex-shrink-0" />
             <span className={`ml-4 whitespace-nowrap transition-opacity duration-300 ${!isSidebarOpen && 'opacity-0'}`}>{label}</span>
         </Link>
@@ -70,6 +73,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     const toggleMobileMenu = useCallback(() => {
         setIsMobileMenuOpen(prev => !prev);
     }, []);
+
+    // Collapse sidebar when clicking outside (desktop only)
+    useEffect(() => {
+        const onClickAway = (e: MouseEvent) => {
+            const sidebar = sidebarRef.current;
+            if (!sidebar) return;
+            const target = e.target as Node;
+            const clickedOutside = !sidebar.contains(target);
+            if (!isMobileMenuOpen && isSidebarOpen && clickedOutside) {
+                setIsSidebarOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', onClickAway);
+        return () => document.removeEventListener('mousedown', onClickAway);
+    }, [isMobileMenuOpen, isSidebarOpen]);
     
     // This state is the key to fixing the mobile reload bug.
     const [initialCheckCompleted, setInitialCheckCompleted] = useState(false);
@@ -118,7 +136,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <aside 
                 ref={sidebarRef}
                 data-mobile-open={isMobileMenuOpen}
-                className={`fixed md:relative inset-y-0 left-0 bg-white shadow-xl z-50 md:z-30 
+                className={`fixed md:sticky md:top-0 inset-y-0 left-0 bg-white shadow-xl z-50 md:z-30 
                            ${isMobileMenuOpen ? '' : '-translate-x-full md:translate-x-0'} 
 ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-y-auto`}>
                 {/* Header */}
@@ -138,13 +156,13 @@ ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-y-auto`}>
                 <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {/* Top Navigation - Dashboard and main links */}
                     <div className="px-2 py-4 space-y-2">
-                        <NavLink href="/admin" icon={FaTachometerAlt} label="Dashboard" isSidebarOpen={isSidebarOpen} />
-                        <NavLink href="/admin/events" icon={FaCalendarAlt} label="Manage Events" isSidebarOpen={isSidebarOpen} />
-                        <NavLink href="/admin/resources" icon={FaBook} label="Manage Resources" isSidebarOpen={isSidebarOpen} />
-                        <NavLink href="/admin/gallery" icon={FaImage} label="Gallery" isSidebarOpen={isSidebarOpen} />
-                        <NavLink href="/admin/registrations" icon={FaUserCheck} label="Event Registrations" isSidebarOpen={isSidebarOpen} />
+<NavLink href="/admin" icon={FaTachometerAlt} label="Dashboard" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/events" icon={FaCalendarAlt} label="Manage Events" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/resources" icon={FaBook} label="Manage Resources" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/gallery" icon={FaImage} label="Gallery" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/registrations" icon={FaUserCheck} label="Event Registrations" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
                         {userRole === 'super_admin' && (
-                            <NavLink href="/admin/users" icon={FaUsers} label="Manage Users" isSidebarOpen={isSidebarOpen} />
+<NavLink href="/admin/users" icon={FaUsers} label="Manage Users" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
                         )}
                     </div>
                     

@@ -2,34 +2,13 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { updateUserRoleAction, deleteUserAction } from "./actions";
-import ConfirmSubmitButton from './ConfirmSubmitButton'
-import { FaUsers, FaSearch, FaTrash, FaSort } from "react-icons/fa";
-import { format } from "date-fns";
+import { deleteUserAction } from "./actions";
+import { FaUsers, FaSearch, FaSort } from "react-icons/fa";
+import UserCard from './UserCard'
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-function UserRoleForm({ user }: { user: { id: string, email: string | undefined, role: string } }) {
-    return (
-        <form action={updateUserRoleAction} className="flex items-center gap-2">
-            <input type="hidden" name="userId" value={user.id} />
-            <select
-                name="role"
-                defaultValue={user.role}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2"
-                aria-label={`Update role for ${user.email}`}
-            >
-                <option value="super_admin">Super Admin</option>
-                <option value="admin">Admin</option>
-                <option value="member">Member</option>
-            </select>
-            <button type="submit" className="btn-primary py-2 px-4 text-sm whitespace-nowrap">
-                Save Role
-            </button>
-        </form>
-    );
-}
 
 export default async function UserManagementPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   try {
@@ -225,49 +204,19 @@ export default async function UserManagementPage({ searchParams }: { searchParam
                 </form>
             </div>
 
-            <div className="bg-white rounded-xl card-shadow overflow-x-auto">
-                <table className="w-full table-fixed text-left">
-                    <thead className="bg-gray-50 border-b">
-                        <tr>
-                            <th className="w-1/2 px-6 py-3 text-sm font-semibold text-gray-600 uppercase">User Email</th>
-                            <th className="w-1/6 px-6 py-3 text-sm font-semibold text-gray-600 uppercase">Joined Date</th>
-                            <th className="w-1/4 px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Manage Role</th>
-                            <th className="w-1/6 px-6 py-3 text-sm font-semibold text-gray-600 uppercase text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {usersWithRoles.map((u) => (
-                            <tr key={u.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap overflow-hidden">
-                                    <p className="font-medium text-gray-900 truncate">{u.email}</p>
-                                    <p className="text-xs text-gray-500">{u.role}</p>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-                                    {u.created_at ? format(new Date(u.created_at), 'PPP') : 'N/A'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <UserRoleForm user={{ id: u.id, email: u.email, role: u.role }} />
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
-                                    <form action={deleteUserAction}>
-                                        <input type="hidden" name="userId" value={u.id} />
-                                        <ConfirmSubmitButton
-                                          confirmText={`Delete ${u.email}? This cannot be undone.`}
-                                          className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
-                                          title="Delete user"
-                                        >
-                                          <FaTrash /> Delete
-                                        </ConfirmSubmitButton>
-                                    </form>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                 {usersWithRoles.length === 0 && (
-                    <p className="text-center text-gray-500 p-8">No users found.</p>
-                )}
+            {/* Responsive user cards grid for all breakpoints */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {usersWithRoles.map((u) => (
+                <UserCard
+                  key={u.id}
+                  user={{ id: u.id, email: u.email || '', role: u.role, created_at: u.created_at || '' }}
+                  deleteAction={deleteUserAction}
+                />
+              ))}
             </div>
+            {usersWithRoles.length === 0 && (
+              <p className="text-center text-gray-500 p-8">No users found.</p>
+            )}
         </div>
     );
   } catch (err) {

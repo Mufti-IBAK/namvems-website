@@ -1,7 +1,9 @@
 // src/app/(admin)/admin/gallery/page.tsx
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { addGalleryImageAction, deleteGalleryImageAction, replaceGalleryImageAction } from './actions'
+import { addGalleryImageAction, deleteGalleryImageAction, replaceGalleryImageAction, addGalleryImageRPC, replaceGalleryImageRPC } from './actions'
+import AdminGalleryUploader from './AdminGalleryUploader'
+import ReplaceGalleryItemForm from './ReplaceGalleryItemForm'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -35,6 +37,10 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
     "use server"
     await addGalleryImageAction(fd)
   }
+  const addActionRpc = async (fd: FormData) => {
+    "use server"
+    return await addGalleryImageRPC(fd)
+  }
   const deleteAction = async (fd: FormData) => {
     "use server"
     await deleteGalleryImageAction(fd)
@@ -42,6 +48,10 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
   const replaceAction = async (fd: FormData) => {
     "use server"
     await replaceGalleryImageAction(fd)
+  }
+  const replaceActionRpc = async (fd: FormData) => {
+    "use server"
+    return await replaceGalleryImageRPC(fd)
   }
 
   // Auth and role check
@@ -98,32 +108,13 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
             Gallery is full (10 images). Remove or replace an image, or upload to Telegram instead.
           </div>
         )}
-        <form action={addAction} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">Event</label>
-            <select name="event_id" className="w-full border rounded px-3 py-2">
-              <option value="">Unspecified</option>
-              {events?.map((ev: { id: number; title: string }) => (
-                <option key={ev.id} value={ev.id}>{ev.title}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Caption</label>
-            <input name="caption" type="text" className="w-full border rounded px-3 py-2" placeholder="Image caption" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Image file (≤ 5MB)</label>
-            <input name="image" type="file" accept="image/*" className="w-full" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Or image URL</label>
-            <input name="image_url" type="url" placeholder="https://..." className="w-full border rounded px-3 py-2" />
-          </div>
-          <div className="md:col-span-4">
-            <button type="submit" className="btn-primary px-4 py-2" disabled={count >= 10}>Add Image</button>
-          </div>
-        </form>
+        {/* Client-side uploader with cropping */}
+        <AdminGalleryUploader
+          events={(events || []) as { id: number; title: string }[]}
+          count={count}
+          addAction={addAction}
+          addActionRpc={addActionRpc}
+        />
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow">
@@ -146,16 +137,14 @@ export default async function AdminGalleryPage({ searchParams }: { searchParams:
                       <button className="text-red-600 hover:text-red-800">Delete</button>
                     </form>
                   </div>
-                  <details className="mt-2">
-                    <summary className="cursor-pointer text-sm text-gray-600">Replace / Update</summary>
-                    <form action={replaceAction} className="mt-2 space-y-2">
-                      <input type="hidden" name="id" value={img.id} />
-                      <input type="text" name="caption" placeholder="New caption (optional)" className="w-full border rounded px-3 py-2" />
-                      <input type="file" name="image" accept="image/*" className="w-full" />
-                      <input type="url" name="image_url" placeholder="Or new image URL" className="w-full border rounded px-3 py-2" />
-                      <button type="submit" className="btn-primary px-4 py-2">Apply</button>
-                    </form>
-                  </details>
+                  <div className="mt-2">
+                    <ReplaceGalleryItemForm
+                      id={img.id}
+                      defaultCaption={img.caption || ''}
+                      replaceAction={replaceAction}
+                      replaceActionRpc={replaceActionRpc}
+                    />
+                  </div>
                 </div>
               </div>
             ))}

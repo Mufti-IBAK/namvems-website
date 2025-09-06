@@ -4,12 +4,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 
 // This is the core logic function. It is clean and has specific types.
 // It throws an error on failure, which is a robust pattern for server-side logic.
 async function updateUserRoleLogic(userId: string, newRole: string, currentUser: User) {
-    const supabase = createClient();
+    const supabaseAdmin = createSupabaseAdminClient();
     
     // Basic validation
     if (!userId || !newRole) {
@@ -20,14 +21,34 @@ async function updateUserRoleLogic(userId: string, newRole: string, currentUser:
         throw new Error('You cannot demote your own account.');
     }
 
-    // Perform the database operation to update or insert the role.
-    const { error } = await supabase
+    // Perform the database operation to update or insert the role using service role to avoid RLS issues.
+    const { error } = await supabaseAdmin
         .from('user_roles')
         .upsert({ user_id: userId, role: newRole }, { onConflict: 'user_id' });
 
     if (error) {
         // If there's a database error, throw it to be caught by the calling function.
         throw new Error(`Supabase error while updating role: ${error.message}`);
+    }
+}
+
+// RPC variant: no redirect, returns status for client alert usage
+export async function updateUserRoleRPC(formData: FormData): Promise<{ ok: boolean; error?: string }> {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { ok: false, error: 'notauth' };
+    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
+    if (roleData?.role !== 'super_admin') return { ok: false, error: 'unauthorized' };
+
+    const targetUserId = formData.get('userId') as string;
+    const newRole = formData.get('role') as string;
+
+    try {
+        await updateUserRoleLogic(targetUserId, newRole, user);
+        revalidatePath('/admin/users');
+        return { ok: true };
+    } catch (e) {
+        return { ok: false, error: 'update-failed' };
     }
 }
 
@@ -63,15 +84,16 @@ export async function updateUserRoleAction(formData: FormData) {
         await updateUserRoleLogic(targetUserId, newRole, user);
         // On success, revalidate the path so the change is visible on the next page load.
         revalidatePath('/admin/users');
+        // Redirect with success banner
+        redirect('/admin/users?message=role-updated');
     } catch (error: unknown) {
-        // Log the detailed error on the server for debugging.
-        // We check if it's an instance of Error to safely access the message property.
         if (error instanceof Error) {
             console.error("Failed to update user role:", error.message);
         } else {
             console.error("An unknown error occurred while updating user role:", error);
         }
-        // In a real app, you might use a more advanced error handling system to report this.
+        // Redirect with error banner
+        redirect('/admin/users?error=role-update');
     }
 }
 
