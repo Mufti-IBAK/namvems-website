@@ -29,9 +29,8 @@ async function getEventById(id: number) {
     return data;
 }
 
-export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const eventId = Number(id);
+export default async function EditEventPage({ params }: { params: { id: string } }) {
+    const eventId = Number(params.id);
     if (isNaN(eventId)) {
         notFound();
     }

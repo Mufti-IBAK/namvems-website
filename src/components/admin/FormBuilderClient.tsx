@@ -17,7 +17,19 @@ function QuestionEditor({ q, onChange, onRemove }: { q: EventFormQuestion; onCha
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700" htmlFor={`type-${q.id}`}>Type</label>
-          <select id={`type-${q.id}`} value={q.type} onChange={(e)=> onChange({ ...q, type: e.target.value as EventFormQuestionType, options: (e.target.value==='select'||e.target.value==='radio'||e.target.value==='checkbox') ? (q.options??['Option 1']) : undefined })} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2">
+          <select id={`type-${q.id}`} value={q.type} onChange={(e)=> {
+            const newType = e.target.value as EventFormQuestionType;
+            let next: EventFormQuestion = { ...q, type: newType };
+            if (newType === 'select' || newType === 'radio' || newType === 'checkbox') {
+              next = { ...next, options: q.options ?? ['Option 1'] };
+            } else {
+              const rest = { ...next } as Record<string, unknown>;
+              const restWithOpts = rest as { options?: unknown };
+              delete restWithOpts.options;
+              next = restWithOpts as unknown as EventFormQuestion;
+            }
+            onChange(next);
+          }} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2">
             {types.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
@@ -36,7 +48,7 @@ function QuestionEditor({ q, onChange, onRemove }: { q: EventFormQuestion; onCha
                   const arr = [...(q.options ?? [])];
                   arr[idx] = e.target.value;
                   onChange({ ...q, options: arr });
-                }} className="flex-1 rounded-md border border-gray-300 px-3 py-2" />
+                }} className="flex-1 rounded-md border border-gray-300 px-3 py-2" aria-label={`Option ${idx + 1}`} placeholder="Option value" />
                 <button type="button" onClick={()=> {
                   const arr = (q.options ?? []).filter((_,i)=> i!==idx);
                   onChange({ ...q, options: arr });

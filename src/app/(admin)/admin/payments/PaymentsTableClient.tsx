@@ -68,7 +68,7 @@ export default function PaymentsTableClient({ initialData }: { initialData: Paym
       if (error) throw error;
       setRows((data as unknown as PaymentRow[]) || []);
       toast.success('Payments refreshed');
-    } catch (e) {
+  } catch {
       toast.error('Failed to refresh payments');
     } finally {
       setLoading(false);

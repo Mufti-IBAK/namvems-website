@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
 import { registerForEvent, type RegistrationActionState } from '@/app/(public)/events/[id]/register/actions';
 import { FaUser, FaUniversity, FaPhone, FaEnvelope, FaGraduationCap, FaSpinner } from 'react-icons/fa';
 import toast from 'react-hot-toast';
