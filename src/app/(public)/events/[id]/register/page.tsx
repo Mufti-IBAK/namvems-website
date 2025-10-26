@@ -225,7 +225,7 @@ export default function EventRegistrationPage() {
           eventTitle={event.title}
           isPaid={Boolean(event.event_fee && Number(event.event_fee) > 0)}
           feeAmount={Number(event.event_fee || 0)}
-          formSchema={event.internal_form_schema as EventFormQuestion[] | null}
+          formSchema={(event.internal_form_schema ?? []) as EventFormQuestion[]}
           onSuccess={handleRegistrationSuccess}
           onCancel={handleGoBack}
         />
