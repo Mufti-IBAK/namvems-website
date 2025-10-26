@@ -19,6 +19,12 @@ type DatabaseEvent = {
   registration_type: 'none' | 'external_link' | 'internal_form';
   registration_link: string | null;
   registration_deadline: string | null;
+  event_fee: number | null;
+  event_fee_student: number | null;
+  event_fee_alumni: number | null;
+  event_fee_non_vet: number | null;
+  event_fee_other: number | null;
+  internal_form_schema: unknown | null;
 };
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +56,7 @@ function sanitizeEventData(events: DatabaseEvent[]): Event[] {
       location: event.location || '',
       category: event.category || 'General',
       registration_deadline: event.registration_deadline || null,
+      internal_form_schema: null,
     }));
 }
 

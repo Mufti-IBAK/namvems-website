@@ -82,9 +82,9 @@ const rows = (eventsData ?? []) as { id: number; title: string; date: string; ev
             events={events}
             currency="NGN"
             associationDuesAmount={associationDuesAmount}
-            defaultEventId={preEventId}
-            defaultLevel={preLevel}
-            defaultUniversity={preUniversity}
+            defaultEventId={preEventId ?? undefined}
+            defaultLevel={preLevel ?? undefined}
+            defaultUniversity={preUniversity ?? undefined}
             lockSelection={Boolean(lock)}
           />
         </div>

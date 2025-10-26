@@ -48,12 +48,12 @@ export default function PaymentFormClient({
   userName: string;
   userEmail: string;
   events: EventOption[];
-  currency?: string;
-  associationDuesAmount?: number;
-  defaultEventId?: number;
-  defaultLevel?: string;
-  defaultUniversity?: string;
-  lockSelection?: boolean;
+  currency?: string | undefined;
+  associationDuesAmount?: number | undefined;
+  defaultEventId?: number | undefined;
+  defaultLevel?: string | undefined;
+  defaultUniversity?: string | undefined;
+  lockSelection?: boolean | undefined;
 }) {
   const [itemType, setItemType] = useState<PaymentItemType>(defaultEventId ? 'event' : 'donation');
   const [eventId, setEventId] = useState<number | ''>(defaultEventId ?? '');
