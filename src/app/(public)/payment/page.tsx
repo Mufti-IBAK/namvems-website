@@ -16,7 +16,7 @@ interface EventOption {
   event_fee_other: number | null;
 }
 
-export default async function PaymentPage({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
+export default async function PaymentPage({ searchParams }: { searchParams: Promise<Record<string, string | string[]>> }) {
   const supabase = createClient();
   const {
     data: { user },
@@ -59,10 +59,11 @@ const rows = (eventsData ?? []) as { id: number; title: string; date: string; ev
   const userEmail = user.email ?? '';
 
   // Prefill/lock from search params
-  const preEventId = searchParams?.eventId ? Number(Array.isArray(searchParams.eventId) ? searchParams.eventId[0] : searchParams.eventId) : undefined;
-  const preLevel = searchParams?.level ? String(Array.isArray(searchParams.level) ? searchParams.level[0] : searchParams.level) : undefined;
-  const preUniversity = searchParams?.university ? String(Array.isArray(searchParams.university) ? searchParams.university[0] : searchParams.university) : undefined;
-  const lock = searchParams?.lock === '1' || searchParams?.lock === 'true';
+  const sp = await searchParams;
+  const preEventId = sp?.eventId ? Number(Array.isArray(sp.eventId) ? sp.eventId[0] : sp.eventId) : undefined;
+  const preLevel = sp?.level ? String(Array.isArray(sp.level) ? sp.level[0] : sp.level) : undefined;
+  const preUniversity = sp?.university ? String(Array.isArray(sp.university) ? sp.university[0] : sp.university) : undefined;
+  const lock = sp?.lock === '1' || sp?.lock === 'true';
 
   return (
     <div className="min-h-screen bg-gray-50">
