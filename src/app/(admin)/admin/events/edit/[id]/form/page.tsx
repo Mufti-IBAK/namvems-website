@@ -5,9 +5,10 @@ export const dynamic = 'force-dynamic';
 
 import FormBuilderPageClient from './FormBuilderPageClient';
 
-export default async function AdminEventFormBuilderPage({ params }: { params: { id: string } }) {
+export default async function AdminEventFormBuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = createClient();
-  const eventId = Number(params.id);
+  const { id } = await params;
+  const eventId = Number(id);
   const { data: event } = await supabase
     .from('events')
     .select('id, title, registration_type, internal_form_schema')

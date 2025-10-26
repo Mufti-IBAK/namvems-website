@@ -47,7 +47,7 @@ export async function updateUserRoleRPC(formData: FormData): Promise<{ ok: boole
         await updateUserRoleLogic(targetUserId, newRole, user);
         revalidatePath('/admin/users');
         return { ok: true };
-    } catch (e) {
+    } catch {
         return { ok: false, error: 'update-failed' };
     }
 }
