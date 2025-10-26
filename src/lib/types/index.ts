@@ -1,4 +1,13 @@
 // src/lib/types/index.ts
+export type EventFormQuestionType = 'short_text' | 'long_text' | 'select' | 'radio' | 'checkbox' | 'date' | 'number';
+export type EventFormQuestion = {
+    id: string;
+    label: string;
+    type: EventFormQuestionType;
+    required?: boolean;
+    options?: string[];
+};
+
 export type Event = {
     id: number;
     title: string;
@@ -12,6 +21,12 @@ export type Event = {
     registration_type: 'none' | 'external_link' | 'internal_form';
     registration_link: string | null;
     registration_deadline: string | null;
+    event_fee: number | null; // fallback
+    event_fee_student: number | null;
+    event_fee_alumni: number | null;
+    event_fee_non_vet: number | null;
+    event_fee_other: number | null;
+    internal_form_schema: EventFormQuestion[] | null;
 };
 
 export type EventRegistration = {

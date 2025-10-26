@@ -61,6 +61,7 @@ export default function Header() {
             <Link href="/" className="font-medium transition-colors duration-300 hover:text-primary text-text">Home</Link>
             <Link href="/events" className="font-medium transition-colors duration-300 hover:text-primary text-text">Events</Link>
             <Link href="/resources" className="font-medium transition-colors duration-300 hover:text-primary text-text">Resources</Link>
+            <Link href="/payment" className="font-medium transition-colors duration-300 hover:text-primary text-text">Payment</Link>
             <Link href="/about" className="font-medium transition-colors duration-300 hover:text-primary text-text">About</Link>
 
             {/* --- FIX: Use our new 'isAdmin' variable --- */}
@@ -95,6 +96,7 @@ export default function Header() {
                 <Link href="/" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Home</Link>
                 <Link href="/events" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Events</Link>
                 <Link href="/resources" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Resources</Link>
+                <Link href="/payment" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>Payment</Link>
                 <Link href="/about" className="mobile-menu-item py-2 px-4 rounded-xl font-medium transition-colors duration-300 hover:bg-gray-100 text-text" onClick={() => setIsMenuOpen(false)}>About</Link>
                 
                 {/* --- FIX: Use our new 'isAdmin' variable here as well --- */}

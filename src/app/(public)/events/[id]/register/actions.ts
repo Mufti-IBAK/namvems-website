@@ -26,6 +26,7 @@ const RegistrationSchema = z.object({
     university: z.string().optional(),
     level_of_study: z.string().optional(),
     additional_info: z.string().optional(),
+    form_answers: z.string().optional(),
 });
 
 export async function registerForEvent(_prevState: RegistrationActionState, formData: FormData): Promise<RegistrationActionState> {
@@ -46,7 +47,8 @@ export async function registerForEvent(_prevState: RegistrationActionState, form
     }
 
     // Validate form data
-    const validatedFields = RegistrationSchema.safeParse(Object.fromEntries(formData.entries()));
+    const entriesObj = Object.fromEntries(formData.entries());
+    const validatedFields = RegistrationSchema.safeParse(entriesObj);
     if (!validatedFields.success) {
         console.error("Validation failed:", validatedFields.error.flatten().fieldErrors);
         return { 
@@ -56,7 +58,7 @@ export async function registerForEvent(_prevState: RegistrationActionState, form
         };
     }
 
-    const { event_id, ...registrationData } = validatedFields.data;
+    const { event_id, form_answers, ...registrationData } = validatedFields.data;
 
     try {
         // Check if event exists and is still accepting registrations
@@ -145,6 +147,18 @@ export async function registerForEvent(_prevState: RegistrationActionState, form
             console.error("Database Error:", insertError);
             console.error("Failed data:", { event_id, user_id: user.id, ...registrationData });
             return { message: `Registration failed: ${insertError.message}`, success: false, errors: {} };
+        }
+
+        // Optionally store dynamic form answers
+        if (form_answers) {
+            try {
+                const parsed = JSON.parse(form_answers);
+                await supabase
+                  .from('event_form_responses')
+                  .insert({ event_id, user_id: user.id, responses: parsed });
+            } catch (e) {
+                console.warn('Failed to store form answers', e);
+            }
         }
 
         console.log("Registration successful:", insertedRegistration);

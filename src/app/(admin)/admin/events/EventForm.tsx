@@ -126,6 +126,36 @@ export default function EventForm({ event }: { event?: Event | null }) {
             
             <div className="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                    <label htmlFor="event_fee_student" className="block text-sm font-medium text-gray-700">Student Fee (NGN)</label>
+                    <input id="event_fee_student" name="event_fee_student" type="number" min="0" step="0.01" defaultValue={(event?.event_fee_student ?? 0)} className="mt-1 block w-full" />
+                </div>
+                <div>
+                    <label htmlFor="event_fee_alumni" className="block text-sm font-medium text-gray-700">Alumni Fee (NGN)</label>
+                    <input id="event_fee_alumni" name="event_fee_alumni" type="number" min="0" step="0.01" defaultValue={(event?.event_fee_alumni ?? 0)} className="mt-1 block w-full" />
+                </div>
+                <div>
+                    <label htmlFor="event_fee_non_vet" className="block text-sm font-medium text-gray-700">Non-Vet Fee (NGN)</label>
+                    <input id="event_fee_non_vet" name="event_fee_non_vet" type="number" min="0" step="0.01" defaultValue={(event?.event_fee_non_vet ?? 0)} className="mt-1 block w-full" />
+                </div>
+                <div>
+                    <label htmlFor="event_fee_other" className="block text-sm font-medium text-gray-700">Others Fee (NGN)</label>
+                    <input id="event_fee_other" name="event_fee_other" type="number" min="0" step="0.01" defaultValue={(event?.event_fee_other ?? 0)} className="mt-1 block w-full" />
+                </div>
+                <div>
+                    <label htmlFor="event_fee" className="block text-sm font-medium text-gray-700">Default Event Fee (NGN)</label>
+                    <input
+                        id="event_fee"
+                        name="event_fee"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        defaultValue={(event?.event_fee ?? 0)}
+                        className="mt-1 block w-full"
+                        aria-describedby="event-fee-help"
+                    />
+                    <p id="event-fee-help" className="mt-1 text-xs text-gray-500">Leave 0 for free; per-level fees override this when set.</p>
+                </div>
+                <div>
                     <label htmlFor="max_attendees" className="block text-sm font-medium text-gray-700">Max Attendees (0 for unlimited)</label>
                     <input id="max_attendees" name="max_attendees" type="number" defaultValue={event?.max_attendees || 0} min="0" className="mt-1 block w-full" />
                 </div>

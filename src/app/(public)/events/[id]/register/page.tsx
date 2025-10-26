@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import EventRegistrationForm from '@/components/forms/EventRegistrationForm';
-import { Event } from '@/lib/types';
+import { Event, type EventFormQuestion } from '@/lib/types';
 import { FaCalendarAlt, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -18,6 +18,8 @@ export default function EventRegistrationPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [regLevel, setRegLevel] = useState<'student'|'alumni'|'non_vet'|'other'>('student');
+  const [regUniversity, setRegUniversity] = useState<string>('');
 
   const eventId = params?.id ? parseInt(params.id as string) : null;
 
@@ -93,7 +95,11 @@ export default function EventRegistrationPage() {
   }, [eventId, fetchEvent]);
 
 
-  const handleRegistrationSuccess = () => {
+  const handleRegistrationSuccess = (payload?: { level: 'student'|'alumni'|'non_vet'|'other'; university: string }) => {
+    if (payload) {
+      setRegLevel(payload.level);
+      setRegUniversity(payload.university);
+    }
     setRegistrationComplete(true);
   };
 
@@ -133,6 +139,7 @@ export default function EventRegistrationPage() {
   }
 
   if (registrationComplete) {
+    const isPaidEvent = Boolean(event?.event_fee && Number(event?.event_fee) > 0);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-2xl mx-auto text-center px-4">
@@ -142,23 +149,24 @@ export default function EventRegistrationPage() {
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
             </div>
-            
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Registration Successful!</h2>
-            <p className="text-lg text-gray-600 mb-2">Thank you for registering for:</p>
             <h3 className="text-xl font-semibold text-primary mb-6">{event?.title}</h3>
-            
-            <p className="text-gray-600 mb-8">
-              You will receive a confirmation email shortly with event details and any additional instructions.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/events" className="btn-primary">
-                View All Events
-              </Link>
-              <Link href="/" className="btn-secondary">
-                Back to Home
-              </Link>
-            </div>
+            {isPaidEvent ? (
+              <>
+                <p className="text-gray-600 mb-6">Next step: proceed to the payment page to complete your registration.</p>
+                <Link
+                  href={`/payment?eventId=${event?.id}&level=${regLevel}&university=${encodeURIComponent(regUniversity)}&lock=1`}
+                  className="btn-primary"
+                >
+                  Go to Payment
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600 mb-6">This event is free. You are all set!</p>
+                <Link href="/" className="btn-primary">Go to Home</Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -215,6 +223,9 @@ export default function EventRegistrationPage() {
         <EventRegistrationForm
           eventId={event.id}
           eventTitle={event.title}
+          isPaid={Boolean(event.event_fee && Number(event.event_fee) > 0)}
+          feeAmount={Number(event.event_fee || 0)}
+          formSchema={event.internal_form_schema as EventFormQuestion[] | null}
           onSuccess={handleRegistrationSuccess}
           onCancel={handleGoBack}
         />

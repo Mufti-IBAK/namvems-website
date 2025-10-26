@@ -9,7 +9,7 @@ import Image from 'next/image';
 import { gsap } from 'gsap';
 import { 
     FaCalendarAlt, FaBook, FaSignOutAlt, FaTachometerAlt, FaBars, FaTimes, FaUsers, FaSpinner,
-    FaHome, FaGlobe, FaUserCheck, FaImage
+    FaHome, FaGlobe, FaUserCheck, FaImage, FaMoneyBillWave, FaCog
 } from 'react-icons/fa';
 
 function NavLink({ href, icon: Icon, label, isSidebarOpen, onNavigate }: { href: string, icon: React.ElementType, label: string, isSidebarOpen: boolean, onNavigate?: () => void }) {
@@ -161,6 +161,8 @@ ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col h-screen overflow-y-auto`}>
 <NavLink href="/admin/resources" icon={FaBook} label="Manage Resources" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
 <NavLink href="/admin/gallery" icon={FaImage} label="Gallery" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
 <NavLink href="/admin/registrations" icon={FaUserCheck} label="Event Registrations" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/payments" icon={FaMoneyBillWave} label="Payments" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
+<NavLink href="/admin/settings/payments" icon={FaCog} label="Payment Settings" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
                         {userRole === 'super_admin' && (
 <NavLink href="/admin/users" icon={FaUsers} label="Manage Users" isSidebarOpen={isSidebarOpen} onNavigate={() => { if (isMobileMenuOpen) { setIsMobileMenuOpen(false) } else { setIsSidebarOpen(false) } }} />
                         )}

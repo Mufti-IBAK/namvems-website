@@ -29,6 +29,12 @@ const EventSchema = z.object({
     registration_type: z.enum(['none', 'external_link', 'internal_form']),
     registration_link: z.string().optional(),
     registration_deadline: z.string().optional(),
+    event_fee: z.coerce.number().min(0).optional(),
+    event_fee_student: z.coerce.number().min(0).optional(),
+    event_fee_alumni: z.coerce.number().min(0).optional(),
+    event_fee_non_vet: z.coerce.number().min(0).optional(),
+    event_fee_other: z.coerce.number().min(0).optional(),
+    internal_form_schema: z.string().optional(),
 });
 
 export async function upsertEvent(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -86,9 +92,21 @@ export async function upsertEvent(_prevState: ActionState, formData: FormData): 
         finalImageUrl = publicUrl;
     }
 
+const payload = { id, ...eventData, image_url: finalImageUrl } as Record<string, unknown>;
+    ['event_fee','event_fee_student','event_fee_alumni','event_fee_non_vet','event_fee_other'].forEach(k => {
+        if (payload[k] !== undefined && payload[k] !== null && payload[k] !== '') {
+            payload[k] = Number(payload[k] as number);
+        } else {
+            delete payload[k];
+        }
+    });
+    if (typeof payload['internal_form_schema'] === 'string') {
+        try { payload['internal_form_schema'] = JSON.parse(payload['internal_form_schema'] as string); } catch { payload['internal_form_schema'] = []; }
+    }
+
     const { data: dbData, error: dbError } = await supabase
         .from('events')
-        .upsert({ id, ...eventData, image_url: finalImageUrl })
+        .upsert(payload)
         .select();
 
     if (dbError) {

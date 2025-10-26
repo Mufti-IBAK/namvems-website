@@ -61,6 +61,9 @@ export default function AdminEventCard({ event }: { event: Event }) {
                     <Link href={`/admin/events/edit/${event.id}`} className="btn-secondary-outline flex-1 text-center py-2 px-3 text-sm">
                         Edit
                     </Link>
+                    <Link href={`/admin/events/edit/${event.id}/form`} className="btn-secondary-outline flex-1 text-center py-2 px-3 text-sm">
+                        Edit Form
+                    </Link>
                     <button 
                         onClick={handleDelete} 
                         disabled={isPending}
