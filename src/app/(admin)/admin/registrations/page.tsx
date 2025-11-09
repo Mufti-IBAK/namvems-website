@@ -4,10 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/context/AuthContext'
 import { Event, EventRegistration } from '@/lib/types'
-import { FaUsers, FaEnvelope, FaTrash, FaDownload, FaCalendarAlt, FaSearch, FaSpinner } from 'react-icons/fa'
+import { FaUsers, FaEnvelope, FaTrash, FaDownload, FaCalendarAlt, FaSearch, FaSpinner, FaEye } from 'react-icons/fa'
 import { format } from 'date-fns'
 import toast from 'react-hot-toast'
 import BulkEmailModal from '@/components/modals/BulkEmailModal'
+import Link from 'next/link'
 
 export default function RegistrationsManagementPage() {
   useAuth() // Authentication check
@@ -364,10 +365,17 @@ export default function RegistrationsManagementPage() {
                             {registration.attendance_status}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 flex gap-2">
+                          <Link
+                            href={`/admin/registrations/${registration.id}`}
+                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View registration details"
+                          >
+                            <FaEye />
+                          </Link>
                           <button
                             onClick={() => handleDeleteRegistration(registration.id)}
-                            className="text-red-600 hover:text-red-800 p-1"
+                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete registration"
                           >
                             <FaTrash />
